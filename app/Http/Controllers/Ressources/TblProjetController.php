@@ -54,6 +54,7 @@ class TblProjetController extends Controller
             'tbl_categorie_id' => 'required|exists:tbl_categories,id',
             'image' => 'required|image|max:2048',
             'type' => ['required', 'in:Projet,Memoire,Article'],
+            'admin_id' => 'required|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -70,7 +71,14 @@ class TblProjetController extends Controller
             'tbl_categorie_id' => $request->tbl_categorie_id,
             'image' => $imageUrl,
             'type' => $request->type,
+            'admin_id' => $request->admin_id,
         ]);
+
+        // Notification à l'admin choisi
+        $admin = \App\Models\User::find($request->admin_id);
+        if ($admin) {
+            $admin->notify(new \App\Notifications\ProjectSubmittedNotification($projet));
+        }
 
         return response()->json($projet, 201);
     }

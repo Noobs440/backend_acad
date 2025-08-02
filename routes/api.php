@@ -1,5 +1,7 @@
 <?php
 
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CloudinaryController;
@@ -28,6 +30,7 @@ use App\Http\Controllers\Ressources\{
     TblProjetController,
     TblDocumentController
 };
+use App\Http\Controllers\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +46,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/email', [ProfileController::class, 'updateEmail']);
     Route::put('/user/update-password', [ProfileController::class, 'updatePassword']);
     Route::post('/user/photo', [ProfileController::class, 'updatePhoto']);
+    // Commentaires
+    Route::get('/comments', [CommentController::class, 'index']);
+    Route::post('/comments', [CommentController::class, 'store']);
+    Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
 });
 
 // Route spécifique pour ajouter un superviseur à un projet (hors préfixe 'ressources' pour cohérence)
@@ -171,3 +178,4 @@ Route::prefix('usecases')->group(function () {
 
 Route::post('collaborateurs/add-to-project/{projectId}', [TblCollaborateurController::class, 'addToProject']);
 
+Route::get('/admins', [App\Http\Controllers\Ressources\UserController::class, 'index']);

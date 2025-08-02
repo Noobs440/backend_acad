@@ -37,7 +37,14 @@ class TblProjet extends Model
         return $this->belongsTo(TblCategorie::class, 'tbl_categorie_id');
     }
 
+
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
+
     public function documents()
+    
     {
         return $this->hasMany(TblDocument::class);
     }

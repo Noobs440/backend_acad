@@ -112,7 +112,11 @@ public function verify(Request $request)
 {
     $request->validate([
         'email' => 'required|email',
-        'code' => 'required|string|min:6|max:6',
+        'code' => 'required|string|size:6',
+        'nom_user' => 'required|string|max:255',
+        'password' => 'required|string|min:4',
+        'tbl_filiere_id' => 'required|exists:tbl_filieres,id',
+        'matricule' => ['required','regex:/^CM-UDS-\d{2}[A-Z]{2,5}\d{4}$/']
     ]);
 
     $verification = VerificationCode::where('email', $request->email)
@@ -124,23 +128,23 @@ public function verify(Request $request)
         return response()->json(['message' => 'Code de vérification expiré ou non trouvé'], 404);
     }
 
-    $userData = $request->session()->get('user_data');
+    if (User::where('email', $request->email)->exists()) {
+        return response()->json(['message' => 'Cet email est déjà utilisé'], 400);
+    }
 
-    if (!$userData) {
-        return response()->json(['message' => 'Les informations de l\'utilisateur ne sont pas trouvées'], 400);
+    if (User::where('matricule', $request->matricule)->exists()) {
+        return response()->json(['message' => 'Ce matricule est déjà utilisé'], 400);
     }
 
     $user = User::create([
-        'nom_user' => $userData['nom_user'],
-        'email' => $userData['email'],
-        'tbl_filiere_id' => $userData['tbl_filiere_id'],
-        'password' => bcrypt($userData['password']),
-        'matricule' => $userData['matricule'],
+        'nom_user' => $request->nom_user,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+        'tbl_filiere_id' => $request->tbl_filiere_id,
+        'matricule' => $request->matricule
     ]);
 
-    // Nettoyer
     VerificationCode::where('email', $request->email)->delete();
-    $request->session()->forget(['user_data']);
 
     return response()->json([
         'message' => 'Adresse e-mail vérifiée avec succès et utilisateur créé',

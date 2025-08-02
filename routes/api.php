@@ -1,11 +1,10 @@
 <?php
 
-use App\Http\Controllers\AdminDashboardController as ControllersAdminDashboardController;
+use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CloudinaryController;
 use App\Http\Controllers\Usecases\{
-    AdminDashboardController,
     ProfileController,
     NotificationController,
     AuthController,
@@ -104,7 +103,7 @@ Route::prefix('usecases')->group(function () {
         Route::post('verify', 'verify')->middleware('web');
     });
 
-Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [ControllersAdminDashboardController::class, 'getStats']);
+Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [AdminDashboardController::class, 'getStats']);
 
 
     // Gestion mot de passe

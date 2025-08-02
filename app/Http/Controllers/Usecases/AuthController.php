@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Usecases;
+use App\Models\VerificationCode;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -62,19 +63,23 @@ class AuthController extends Controller
     }
 
     public function sendVerificationCode($email)
-    {
-        $verificationCode = Str::random(6); // Générer un code de vérification de 6 caractères
+{
+    $verificationCode = strtoupper(Str::random(6)); // ex: 77ADBJ
 
-        // Enregistrez le code de vérification dans la session de l'utilisateur
-        session()->put('verification_code', $verificationCode);
+    VerificationCode::updateOrCreate(
+        ['email' => $email],
+        [
+            'code' => $verificationCode,
+            'expires_at' => now()->addMinutes(10)
+        ]
+    );
 
-        // Envoyer l'e-mail avec le code de vérification
-        Mail::raw("Votre code de vérification est : $verificationCode", function ($message) use ($email) {
-            $message->to($email)->subject('Code de vérification');
-        });
+    Mail::raw("Votre code de vérification est : $verificationCode", function ($message) use ($email) {
+        $message->to($email)->subject('Code de vérification');
+    });
 
-        return response()->json(['message' => 'Code de vérification envoyé par e-mail']);
-    }
+    return response()->json(['message' => 'Code de vérification envoyé par e-mail']);
+}
 
     /**
      * @OA\Post(
@@ -102,47 +107,46 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function verify(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'code' => 'required|string|min:6|max:6',
-        ]);
 
-        // Récupérez le code de vérification de la session de l'utilisateur
-        $verificationCode = $request->session()->get('verification_code');
+public function verify(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'code' => 'required|string|min:6|max:6',
+    ]);
 
-        if (!$verificationCode) {
-            return response()->json(['message' => 'Code de vérification expiré ou non trouvé'], 404);
-        }
+    $verification = VerificationCode::where('email', $request->email)
+        ->where('code', strtoupper($request->code))
+        ->where('expires_at', '>', now())
+        ->first();
 
-        // Comparez le code soumis par l'utilisateur avec celui stocké en session
-        if ($request->code !== $verificationCode) {
-            return response()->json(['message' => 'Code de vérification incorrect'], 400);
-        }
-
-        // Récupérez les informations de l'utilisateur de la session
-        $userData = $request->session()->get('user_data');
-
-        if (!$userData) {
-            return response()->json(['message' => 'Les informations de l\'utilisateur ne sont pas trouvées'], 400);
-        }
-
-        // Créez l'utilisateur dans la base de données
-        $user = User::create([
-            'nom_user' => $userData['nom_user'],
-            'email' => $userData['email'],
-            'tbl_filiere_id' => $userData['tbl_filiere_id'],
-            'password' => bcrypt($userData['password']), // N'oubliez pas de hacher le mot de passe
-             // ----- AJOUT enregistrement matricule -----
-            'matricule' => $userData['matricule'],
-        ]);
-
-        // Nettoyez les informations de la session après la création de l'utilisateur
-        $request->session()->forget(['verification_code', 'user_data']);
-
-        return response()->json(['message' => 'Adresse e-mail vérifiée avec succès et utilisateur créé', 'user' => $user], 201);
+    if (!$verification) {
+        return response()->json(['message' => 'Code de vérification expiré ou non trouvé'], 404);
     }
+
+    $userData = $request->session()->get('user_data');
+
+    if (!$userData) {
+        return response()->json(['message' => 'Les informations de l\'utilisateur ne sont pas trouvées'], 400);
+    }
+
+    $user = User::create([
+        'nom_user' => $userData['nom_user'],
+        'email' => $userData['email'],
+        'tbl_filiere_id' => $userData['tbl_filiere_id'],
+        'password' => bcrypt($userData['password']),
+        'matricule' => $userData['matricule'],
+    ]);
+
+    // Nettoyer
+    VerificationCode::where('email', $request->email)->delete();
+    $request->session()->forget(['user_data']);
+
+    return response()->json([
+        'message' => 'Adresse e-mail vérifiée avec succès et utilisateur créé',
+        'user' => $user
+    ], 201);
+}
 
     /**
      * @OA\Post(

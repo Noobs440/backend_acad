@@ -82,37 +82,26 @@ class ProfileController extends Controller
 
     // POST /user/photo
     public function updatePhoto(Request $request)
-    {
-        $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+{
+    $request->validate([
+        'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        $user = Auth::user();
+    $user = Auth::user();
 
-        // Supprimer l'ancienne photo si elle existe
-        if ($user->photo) {
-            $oldPath = public_path($user->photo);
-            if (file_exists($oldPath)) {
-                unlink($oldPath);
-            }
-        }
+    // Supprimer l'ancienne photo si elle venait de Cloudinary (optionnel)
+    // Tu peux garder le public_id dans un champ séparé si besoin
 
-        $file = $request->file('photo');
+    // Upload via Cloudinary
+    $upload = $this->fileUploadService->upload($request->file('photo'), 'user_photos');
 
-        // Générer un nom de fichier unique
-        $filename = time() . '_' . $file->getClientOriginalName();
+    $user->photo = $upload->getSecurePath();
+    $user->save();
 
-        // Déplacer le fichier dans public/images
-        $file->move(public_path('images'), $filename);
+    return response()->json([
+        'message' => 'Photo de profil mise à jour avec succès.',
+        'photo' => $upload->getSecurePath()
+    ], 200);
+}
 
-        // Enregistrer chemin relatif dans la base (ex: images/nomfichier.jpg)
-        $user->photo = 'images/' . $filename;
-        $user->save();
-
-        // Retourner l'URL complète accessible publiquement
-        return response()->json([
-            'message' => 'Photo de profil mise à jour avec succès.',
-            'photo' => url('images/' . $filename)  // ex: http://localhost:8000/images/nomfichier.jpg
-        ], 200);
-    }
 }

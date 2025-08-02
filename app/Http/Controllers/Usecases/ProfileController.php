@@ -81,7 +81,7 @@ class ProfileController extends Controller
     }
 
     // POST /user/photo
-    public function updatePhoto(Request $request)
+public function updatePhoto(Request $request)
 {
     $request->validate([
         'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -89,19 +89,17 @@ class ProfileController extends Controller
 
     $user = Auth::user();
 
-    // Supprimer l'ancienne photo si elle venait de Cloudinary (optionnel)
-    // Tu peux garder le public_id dans un champ séparé si besoin
-
     // Upload via Cloudinary
-    $upload = $this->fileUploadService->upload($request->file('photo'), 'user_photos');
+    $uploadUrl = $this->fileUploadService->uploadFile($request->file('photo'), 'user_photos');
 
-    $user->photo = $upload->getSecurePath();
+    $user->photo = $uploadUrl;
     $user->save();
 
     return response()->json([
         'message' => 'Photo de profil mise à jour avec succès.',
-        'photo' => $upload->getSecurePath()
+        'photo' => $uploadUrl
     ], 200);
 }
+
 
 }

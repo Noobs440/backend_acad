@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Usecases;
-
 use App\Http\Controllers\Controller;
 use App\Models\TblCategorie;
 use App\Models\TblNiveau;
@@ -13,6 +11,32 @@ use Illuminate\Http\Request;
 
 class ListingController extends Controller
 {
+    public function showAdminProjects($id)
+    {
+        // Vérifier que l'utilisateur existe
+        $user = User::findOrFail($id);
+        // Récupérer les projets où admin_id = $id
+        $projets = TblProjet::where('admin_id', $id)->with(['niveau:id,code_niv', 'categorie:id,nom_cat', 'user:id,nom_user'])->get();
+
+        $formattedProjets = $projets->map(function ($projet) {
+            return [
+                'id' => $projet->id,
+                'user_id' => $projet->user->id,
+                'titre' => $projet->titre_projet,
+                'description' => $projet->descript_projet,
+                'type' => $projet->type,
+                'views' => $projet->views,
+                'image' => $projet->image,
+                'status' => $projet->status,
+                'niveau' => $projet->niveau->code_niv,
+                'categorie' => $projet->categorie->nom_cat,
+                'nom_utilisateur' => $projet->user->nom_user,
+                'created_at' => $projet->created_at,
+            ];
+        });
+        return response()->json($formattedProjets);
+    }
+
     /**
      * @OA\Get(
      *     path="/api/listing/categorie/projets/{id}",
@@ -38,6 +62,38 @@ class ListingController extends Controller
      *     )
      * )
      */
+
+     public function showCollaboratorProjects($userId)
+    {
+        // On suppose que le user est lié à TblCollaborateur (par email ou id)
+        $user = \App\Models\User::findOrFail($userId);
+        // Récupérer tous les collaborateurs liés à cet utilisateur (par email)
+        $collaborateurs = \App\Models\TblCollaborateur::where('email_collab', $user->email)->get();
+        $projets = collect();
+        foreach ($collaborateurs as $collab) {
+            $projets = $projets->merge($collab->projets()->with(['niveau:id,code_niv', 'categorie:id,nom_cat', 'user:id,nom_user'])->get());
+        }
+        // Formater les projets pour lecture seule
+        $formattedProjets = $projets->unique('id')->map(function ($projet) {
+            return [
+                'id' => $projet->id,
+                'user_id' => $projet->user->id,
+                'titre' => $projet->titre_projet,
+                'description' => $projet->descript_projet,
+                'type' => $projet->type,
+                'views' => $projet->views,
+                'image' => $projet->image,
+                'status' => $projet->status,
+                'niveau' => $projet->niveau->code_niv,
+                'categorie' => $projet->categorie->nom_cat,
+                'nom_utilisateur' => $projet->user->nom_user,
+                'created_at' => $projet->created_at,
+                'readonly' => true // Pour le frontend : lecture seule
+            ];
+        });
+        return response()->json($formattedProjets->values());
+    }
+
     public function showProjects($id)
     {
         // Récupérer la catégorie par son ID

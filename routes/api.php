@@ -1,7 +1,5 @@
 <?php
 
-
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CloudinaryController;
@@ -46,9 +44,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/email', [ProfileController::class, 'updateEmail']);
     Route::put('/user/update-password', [ProfileController::class, 'updatePassword']);
     Route::post('/user/photo', [ProfileController::class, 'updatePhoto']);
-    // Commentaires
-    Route::get('/comments', [CommentController::class, 'index']);
+    // Commentaires avancés
+    Route::get('/comments', [CommentController::class, 'index']); // ?project_id=xx
     Route::post('/comments', [CommentController::class, 'store']);
+    Route::post('/comments/{id}/react', [CommentController::class, 'react']);
+    Route::get('/comments-count', [CommentController::class, 'count']); // ?project_id=xx
     Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
 });
 
@@ -70,6 +70,12 @@ Route::prefix('ressources')->group(function () {
     Route::apiResource('niveaux', TblNiveauController::class);
     Route::apiResource('categories', TblCategorieController::class);
     Route::apiResource('projets', TblProjetController::class);
+    // Assigner un admin à un projet existant
+    Route::post('projets/{id}/assign-admin', [TblProjetController::class, 'assignAdmin']);
+    // Rejeter un projet avec motif (admin)
+    Route::post('projets/{id}/reject', [TblProjetController::class, 'rejectWithReason']);
+    // Resoumettre un projet rejeté (utilisateur)
+    Route::post('projets/{id}/resubmit', [TblProjetController::class, 'resubmit']);
     Route::apiResource('documents', TblDocumentController::class);
 });
 
@@ -140,6 +146,7 @@ Route::prefix('usecases')->group(function () {
         Route::get('/user/documents/{id}', 'showUserDocuments');
         Route::get('/user/projets/{id}', 'showUserProjects');
         Route::get('/user/approved_projets/{id}', 'showUserApprovedProjects');
+        Route::get('/collaborateur/projets/{id}', 'showCollaboratorProjects');
         Route::get('/count/', 'countProjectsByStatus');
         Route::get('/getprojectstype', 'getProjectTypes');
     });
@@ -165,6 +172,7 @@ Route::prefix('usecases')->group(function () {
     Route::prefix('status')->controller(ProjectStatusController::class)->group(function () {
         Route::get('/approved/pending/{id}', 'approvePendingProject')->middleware('web');
         Route::get('/rejected/pending/{id}', 'rejectPendingProject')->middleware('web');
+        Route::post('/rejected/pending/{id}', 'rejectPendingProject')->middleware('web');
         Route::get('/pending/{id}', 'PendingProject')->middleware('web');
         Route::put('projects/{id}', 'updateStatus')->middleware('web');
     });
@@ -179,3 +187,5 @@ Route::prefix('usecases')->group(function () {
 Route::post('collaborateurs/add-to-project/{projectId}', [TblCollaborateurController::class, 'addToProject']);
 
 Route::get('/admins', [App\Http\Controllers\Ressources\UserController::class, 'index']);
+// Projets dont l'utilisateur est admin
+Route::get('/listing/admin/projets/{id}', [\App\Http\Controllers\Usecases\ListingController::class, 'showAdminProjects']);

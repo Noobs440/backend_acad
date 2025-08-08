@@ -163,16 +163,16 @@ Route::prefix('usecases')->group(function () {
         Route::get('/{id}', 'addView');
     });
 
-    // Ajout documents
+    // Ajout documents et collaborateurs
     Route::prefix('add')->controller(AddController::class)->group(function () {
         Route::post('doc/projet/{id}', 'ajouterDocument');
+        Route::post('collaborateur/projet/{id}', 'ajouterCollaborateur');
     });
 
     // Statut projets
     Route::prefix('status')->controller(ProjectStatusController::class)->group(function () {
         Route::get('/approved/pending/{id}', 'approvePendingProject')->middleware('web');
-        Route::get('/rejected/pending/{id}', 'rejectPendingProject')->middleware('web');
-        Route::post('/rejected/pending/{id}', 'rejectPendingProject')->middleware('web');
+        Route::patch('/rejected/pending/{id}', 'rejectPendingProject')->middleware('web');
         Route::get('/pending/{id}', 'PendingProject')->middleware('web');
         Route::put('projects/{id}', 'updateStatus')->middleware('web');
     });

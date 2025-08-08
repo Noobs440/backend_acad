@@ -35,7 +35,9 @@ class ProjectStatusController extends Controller
         $project = TblProjet::find($projectId);
 
         if ($project && $project->status === 'Pending' ) {
+            $motif = request()->input('motif') ?? request()->input('rejection_reason') ?? null;
             $project->status = 'Rejected';
+            $project->rejection_reason = $motif;
             $project->save();
 
             // Envoi de la notification à l'utilisateur

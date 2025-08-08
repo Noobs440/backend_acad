@@ -65,33 +65,39 @@ class ListingController extends Controller
 
      public function showCollaboratorProjects($userId)
     {
-        // On suppose que le user est lié à TblCollaborateur (par email ou id)
-        $user = \App\Models\User::findOrFail($userId);
-        // Récupérer tous les collaborateurs liés à cet utilisateur (par email)
-        $collaborateurs = \App\Models\TblCollaborateur::where('email_collab', $user->email)->get();
-        $projets = collect();
-        foreach ($collaborateurs as $collab) {
-            $projets = $projets->merge($collab->projets()->with(['niveau:id,code_niv', 'categorie:id,nom_cat', 'user:id,nom_user'])->get());
+        try {
+            $user = \App\Models\User::findOrFail($userId);
+            $collaborateurs = \App\Models\TblCollaborateur::where('email_collab', $user->email)->get();
+            $projets = collect();
+            foreach ($collaborateurs as $collab) {
+                $projets = $projets->merge($collab->projets()->with(['niveau:id,code_niv', 'categorie:id,nom_cat', 'user:id,nom_user'])->get());
+            }
+            $formattedProjets = $projets->unique('id')->map(function ($projet) {
+                // Sécurisation : skip si une relation clé est manquante
+                if (!$projet->user || !$projet->niveau || !$projet->categorie) {
+                    return null;
+                }
+                return [
+                    'id' => $projet->id,
+                    'user_id' => $projet->user->id,
+                    'titre' => $projet->titre_projet,
+                    'description' => $projet->descript_projet,
+                    'type' => $projet->type,
+                    'views' => $projet->views,
+                    'image' => $projet->image,
+                    'status' => $projet->status,
+                    'niveau' => $projet->niveau->code_niv,
+                    'categorie' => $projet->categorie->nom_cat,
+                    'nom_utilisateur' => $projet->user->nom_user,
+                    'created_at' => $projet->created_at,
+                    'readonly' => true
+                ];
+            })->filter();
+            return response()->json($formattedProjets->values());
+        } catch (\Throwable $e) {
+            \Log::error('Erreur showCollaboratorProjects: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => 'Erreur lors de la récupération des projets en collaboration', 'details' => $e->getMessage()], 500);
         }
-        // Formater les projets pour lecture seule
-        $formattedProjets = $projets->unique('id')->map(function ($projet) {
-            return [
-                'id' => $projet->id,
-                'user_id' => $projet->user->id,
-                'titre' => $projet->titre_projet,
-                'description' => $projet->descript_projet,
-                'type' => $projet->type,
-                'views' => $projet->views,
-                'image' => $projet->image,
-                'status' => $projet->status,
-                'niveau' => $projet->niveau->code_niv,
-                'categorie' => $projet->categorie->nom_cat,
-                'nom_utilisateur' => $projet->user->nom_user,
-                'created_at' => $projet->created_at,
-                'readonly' => true // Pour le frontend : lecture seule
-            ];
-        });
-        return response()->json($formattedProjets->values());
     }
 
     public function showProjects($id)

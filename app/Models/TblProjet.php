@@ -20,6 +20,8 @@ class TblProjet extends Model
         'views',
         'image',
         'admin_id',
+        'soumis',
+        'rejection_reason',
     ];
 
     public function user()

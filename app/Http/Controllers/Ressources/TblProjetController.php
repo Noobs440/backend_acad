@@ -36,6 +36,7 @@ class TblProjetController extends Controller
                 'nom_categorie' => $projet->categorie->nom_cat,
                 'created_at' => $projet->created_at,
                 'updated_at' => $projet->updated_at,
+                'admin_id' => $projet->admin_id,
             ];
         });
 
@@ -71,6 +72,7 @@ class TblProjetController extends Controller
             'type' => $request->type,
             'admin_id' => $request->admin_id,
             'status' => 'Pending',
+            'soumis' => true,
         ]);
 
         // Notification uniquement à l'admin choisi (déjà fait ci-dessus)
@@ -174,21 +176,30 @@ class TblProjetController extends Controller
 
     public function assignAdmin(Request $request, $id)
     {
-        $request->validate([
-            'admin_id' => 'required|exists:users,id',
-        ]);
-        $projet = TblProjet::findOrFail($id);
-        $projet->admin_id = $request->admin_id;
-        // Si le projet n'est pas déjà Pending, on le passe à Pending
-        if ($projet->status !== 'Pending') {
-            $projet->status = 'Pending';
-        }
-        $projet->save();
-        // Notification à l'admin choisi
-        $admin = \App\Models\User::find($request->admin_id);
-        if ($admin) {
+        try {
+            $request->validate([
+                'admin_id' => 'required|exists:users,id',
+            ]);
+            $projet = TblProjet::find($id);
+            if (!$projet) {
+                \Log::error("Projet introuvable pour l'assignation d'admin", ['projet_id' => $id]);
+                return response()->json(['error' => "Projet introuvable"], 404);
+            }
+            $admin = \App\Models\User::where('id', $request->admin_id)->where('role', 'admin')->first();
+            if (!$admin) {
+                \Log::error("Admin introuvable ou n'est pas admin", ['admin_id' => $request->admin_id]);
+                return response()->json(['error' => "Admin introuvable ou n'est pas admin"], 400);
+            }
+            $projet->admin_id = $admin->id;
+            if ($projet->status !== 'Pending') {
+                $projet->status = 'Pending';
+            }
+            $projet->save();
             $admin->notify(new \App\Notifications\ProjectSubmittedNotification($projet));
+            return response()->json(['message' => 'Admin assigné, projet soumis', 'projet' => $projet]);
+        } catch (\Exception $e) {
+            \Log::error('Erreur assignation admin', ['exception' => $e->getMessage()]);
+            return response()->json(['error' => 'Erreur serveur lors de l\'assignation de l\'admin', 'details' => $e->getMessage()], 500);
         }
-        return response()->json(['message' => 'Admin assigné, projet soumis', 'projet' => $projet]);
     }
 }

@@ -22,7 +22,7 @@ class ProjetSeeder extends Seeder
             'user_id'=>'1',
             'tbl_niveau_id'=>'1',
             'tbl_categorie_id'=>'1',
-
+            'admin_id'=>'2', // Hyacinthe Urbain (admin)
         ]);
 
         TblProjet::create([
@@ -34,8 +34,8 @@ class ProjetSeeder extends Seeder
             'user_id'=>'2',
             'tbl_niveau_id'=>'1',
             'tbl_categorie_id'=>'1',
+            'admin_id'=>'2', // Hyacinthe Urbain (admin)
         ]);
-
 
     TblProjet::create([
         'titre_projet'=>'Système de détection d intrusion',
@@ -46,7 +46,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'2',
         'tbl_niveau_id'=>'1',
         'tbl_categorie_id'=>'2',
-
+        'admin_id'=>'7', // mike diogni (admin)
     ]);
 
     TblProjet::create([
@@ -58,6 +58,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'3',
         'tbl_niveau_id'=>'1',
         'tbl_categorie_id'=>'2',
+        'admin_id'=>'7', // mike diogni (admin)
     ]);
 
     TblProjet::create([
@@ -69,7 +70,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'2',
         'tbl_niveau_id'=>'2',
         'tbl_categorie_id'=>'3',
-
+        'admin_id'=>'2', // Hyacinthe Urbain (admin)
     ]);
 
     TblProjet::create([
@@ -81,6 +82,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'4',
         'tbl_niveau_id'=>'4',
         'tbl_categorie_id'=>'3',
+        'admin_id'=>'7', // mike diogni (admin)
     ]);
 
     TblProjet::create([
@@ -92,7 +94,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'2',
         'tbl_niveau_id'=>'1',
         'tbl_categorie_id'=>'4',
-
+        'admin_id'=>'2', // Hyacinthe Urbain (admin)
     ]);
 
     TblProjet::create([
@@ -104,6 +106,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'1',
         'tbl_niveau_id'=>'2',
         'tbl_categorie_id'=>'4',
+        'admin_id'=>'7', // mike diogni (admin)
     ]);
 
     TblProjet::create([
@@ -115,7 +118,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'3',
         'tbl_niveau_id'=>'4',
         'tbl_categorie_id'=>'5',
-
+        'admin_id'=>'2', // Hyacinthe Urbain (admin)
     ]);
 
     TblProjet::create([

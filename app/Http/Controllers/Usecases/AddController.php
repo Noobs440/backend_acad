@@ -44,10 +44,31 @@ class AddController extends Controller
         ], 201);
     }
 
-    // public function ajouterCollaborateur(Request $request, $id)
-    // {
+    public function ajouterCollaborateur(Request $request, $id)
+    {
+        $request->validate([
+            'nom_collab' => 'required|string',
+            'email_collab' => 'required|email',
+        ]);
 
-    //     // fais ta methode ici en suivant l'exemple precedent et en adaptant juste en fonction des collaborateur
-    // }
+        $projet = \App\Models\TblProjet::findOrFail($id);
+
+        // Vérifier si le collaborateur existe déjà (par email)
+        $collaborateur = \App\Models\TblCollaborateur::firstOrCreate(
+            ['email_collab' => $request->email_collab],
+            ['nom_collab' => $request->nom_collab]
+        );
+
+        // Associer le collaborateur au projet via la table de jointure
+        if (method_exists($collaborateur, 'projets')) {
+            $collaborateur->projets()->syncWithoutDetaching([$projet->id]);
+        }
+
+        return response()->json([
+            'message' => 'Collaborateur ajouté au projet avec succès',
+            'collaborateur' => $collaborateur,
+            'projet_id' => $projet->id
+        ], 201);
+    }
 
 }

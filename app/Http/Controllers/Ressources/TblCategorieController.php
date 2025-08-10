@@ -70,7 +70,7 @@ class TblCategorieController extends Controller
         $validator = Validator::make($request->all(), [
             'nom_cat'=>'required|unique:tbl_categories,nom_cat|max:255',
             'descript_cat'=>'required|unique:tbl_categories,descript_cat|max:255',
-            'icone' => 'required|mimes:svg,png,ico',
+            'icone' => 'required|mimes:svg,png,ico,jpg,jpeg',
 
         ]);
         if($validator->fails()){
@@ -163,7 +163,7 @@ class TblCategorieController extends Controller
         $validator = Validator::make($request->all(), [
             'nom_cat'=>'required|max:255',
             'descript_cat'=>'required',
-            'icone' => 'nullable|mimes:svg,png,ico',
+            'icone' => 'nullable|mimes:svg,png,ico,jpeg,jpg',
         ]);
         if($validator->fails()){
             return response()->json(['errors' => $validator->errors()], 400);

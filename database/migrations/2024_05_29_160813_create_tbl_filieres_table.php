@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('tbl_filieres', function (Blueprint $table) {
             $table->id();
             $table->string('nom_fil')->unique();
-            $table->foreignIdFor(TblFaculte::class)->constrained();
+            $table->foreignIdFor(TblFaculte::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('nom_doc');
             $table->string('lien_doc')->unique();
-            $table->foreignIdFor(TblProjet::class)->constrained();
-            $table->foreignIdFor(User::class)->constrained();
+            $table->foreignIdFor(TblProjet::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

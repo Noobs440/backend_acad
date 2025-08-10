@@ -65,12 +65,12 @@ class TblDocument extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function projet()
     {
-        return $this->belongsTo(TblProjet::class);
+        return $this->belongsTo(TblProjet::class, 'tbl_projet_id');
     }
 
 

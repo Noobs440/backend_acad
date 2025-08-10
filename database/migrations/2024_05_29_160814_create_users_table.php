@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('matricule')->unique()->nullable(false);
-            $table->foreignIdFor(TblFiliere::class)->constrained();
+            $table->foreignIdFor(TblFiliere::class)->constrained()->onDelete('cascade');
             $table->string('password');
             $table->string('role')->default('user');
             $table->rememberToken();

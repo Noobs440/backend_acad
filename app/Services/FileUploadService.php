@@ -14,24 +14,47 @@ class FileUploadService
      * @param string $folder Nom du dossier Cloudinary (ex: 'images/project')
      * @return string URL publique
      */
-    public function uploadFile(UploadedFile $file, string $folder): string
-    {
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $extension = $file->getClientOriginalExtension();
+public function uploadFile(UploadedFile $file, string $folder): string
+{
+    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+    $extension = strtolower($file->getClientOriginalExtension());
+    $uniqueName = $originalName . '_' . time() . '_' . uniqid() . '.' . $extension;
 
-        // Générer un nom unique
-        $uniqueName = $originalName . '_' . time() . '_' . uniqid();
+    $resourceType = match (true) {
+        in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']) => 'image',
+        in_array($extension, ['mp4', 'mov', 'avi', 'mkv']) => 'video',
+        default => 'raw',
+    };
 
-        // Upload sur Cloudinary avec un nom public unique
-        $uploaded = Cloudinary::upload($file->getRealPath(), [
-            'folder'     => $folder,
-            'public_id'  => $uniqueName,
-            'resource_type' => 'auto', // accepte images, pdf, vidéos, etc.
-            'overwrite'  => false,
-        ]);
+    $uploaded = Cloudinary::upload($file->getRealPath(), [
+        'folder' => $folder, // par ex 'Projets', sans 'public/'
+        'public_id' => $uniqueName,
+        'resource_type' => $resourceType,
+        'use_filename' => true,
+        'overwrite' => false,
+    ]);
 
-        return $uploaded->getSecurePath(); // URL HTTPS du fichier
-    }
+    // Ici, on récupère le chemin complet
+    $url = $uploaded->getSecurePath();
+
+    /* Si c’est raw, vérifie et ajuste
+    if ($resourceType === 'raw' && !str_contains($url, '/raw/upload/')) {
+        $url = 'https://res.cloudinary.com/' . config('cloudinary.cloud_name') .
+               '/raw/upload/' . $uploaded->getVersion() . '/' . $uploaded->getPublicId();
+    }*/
+
+    return $url;
+}
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Supprime un fichier de Cloudinary à partir de son public ID.

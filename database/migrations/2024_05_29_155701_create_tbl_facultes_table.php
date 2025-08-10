@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('nom_fac')->unique();
             $table->string('email_fac')->unique();
-            $table->foreignIdFor(TblUniversite::class)->constrained();
+            $table->foreignIdFor(TblUniversite::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -33,6 +33,7 @@ class User extends Authenticatable
         'tbl_filiere_id',
         'password',
         'surname',
+        'role',
         
     ];
 

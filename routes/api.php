@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\Ressources\UserManagementController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CloudinaryController;
+
 use App\Http\Controllers\Usecases\{
     ProfileController,
     NotificationController,
@@ -38,18 +42,41 @@ use App\Http\Controllers\Ressources\{
 | Routes API accessibles via /api/...
 |
 */
+
+
+Route::middleware('auth:sanctum')->post('/projects/{project}/chat-comments', [ChatController::class, 'store']);
+
+
+
+Route::get('/user-management', [UserManagementController::class, 'index']);
+Route::post('/user-management', [UserManagementController::class, 'store']);
+Route::put('/user-management/{user}', [UserManagementController::class, 'update']);
+Route::delete('/user-management/{user}', [UserManagementController::class, 'destroy']);
+Route::put('/user-management/{id}/reset-password', [UserManagementController::class, 'resetPassword']);
+
+
+Route::get('/user/{userId}/conversations', [CommentController::class, 'userConversations']);
+Route::get('/projects/{projectId}/comments', [CommentController::class, 'index']);
+Route::post('/projects/{project}/comments', [CommentController::class, 'store']);
+
+Route::get('/user/{userId}/comment-conversations', [CommentController::class, 'userConversationsWithComments']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [ProfileController::class, 'getUserProfile']);
     Route::put('/user/update-name', [ProfileController::class, 'updateName']);
     Route::put('/user/email', [ProfileController::class, 'updateEmail']);
     Route::put('/user/update-password', [ProfileController::class, 'updatePassword']);
     Route::post('/user/photo', [ProfileController::class, 'updatePhoto']);
+
 });
 
 // Route spécifique pour ajouter un superviseur à un projet (hors préfixe 'ressources' pour cohérence)
 Route::post('superviseurs/add-to-project/{projectId}', [TblSuperviseurController::class, 'addToProject']);
 
 Route::post('/upload-cloudinary', [CloudinaryController::class, 'upload']);
+Route::get('/download/cloudinary/{publicId}', [CloudinaryController::class, 'downloadCloudinaryFile'])
+    ->where('publicId', '.*');
+
 Route::post('/projects/{id}/assign-supervisor', [App\Http\Controllers\ProjectController::class, 'assignSupervisor']);
 // Route pour récupérer les projets supervisés par l'utilisateur connecté
 Route::get('/projects/supervised', [App\Http\Controllers\ProjectController::class, 'getSupervisedProjects']);

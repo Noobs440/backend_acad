@@ -25,8 +25,8 @@ return new class extends Migration
             $table->enum('type', ['Projet', 'Memoire', 'Article'])->default('Projet');
             $table->boolean('soumis')->default(false);
             $table->foreign('tbl_niveau_id')->references('id')->on('tbl_niveaux')->onDelete('cascade');
-            $table->foreignIdFor(User::class)->constrained();
-            $table->foreignIdFor(TblCategorie::class)->constrained();
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(TblCategorie::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

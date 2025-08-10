@@ -49,17 +49,24 @@ class AddController extends Controller
         $request->validate([
             'nom_collab' => 'required|string',
             'email_collab' => 'required|email',
+            'user_id' => 'nullable|integer|exists:users,id',
         ]);
 
         $projet = \App\Models\TblProjet::findOrFail($id);
 
-        // Vérifier si le collaborateur existe déjà (par email)
+        // On permet à un utilisateur/collaborateur d'être sur plusieurs projets
         $collaborateur = \App\Models\TblCollaborateur::firstOrCreate(
-            ['email_collab' => $request->email_collab],
-            ['nom_collab' => $request->nom_collab]
+            [
+                'email_collab' => $request->email_collab,
+                'nom_collab' => $request->nom_collab,
+                'tbl_projet_id' => $projet->id,
+            ],
+            [
+                'user_id' => $request->user_id
+            ]
         );
 
-        // Associer le collaborateur au projet via la table de jointure
+        // Associer le collaborateur au projet via la table de jointure (sécurité)
         if (method_exists($collaborateur, 'projets')) {
             $collaborateur->projets()->syncWithoutDetaching([$projet->id]);
         }

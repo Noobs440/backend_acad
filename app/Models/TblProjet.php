@@ -13,13 +13,15 @@ class TblProjet extends Model
     protected $fillable = [
         'titre_projet',
         'descript_projet',
-        'superviseurs',
+        // 'superviseurs' supprimé : plus de superviseur
         'tbl_niveau_id',
         'tbl_categorie_id',
         'user_id',
         'views',
         'image',
-        'supervisor_id',
+        'admin_id',
+        'soumis',
+        'rejection_reason',
     ];
 
     public function user()
@@ -37,7 +39,14 @@ class TblProjet extends Model
         return $this->belongsTo(TblCategorie::class, 'tbl_categorie_id');
     }
 
+
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
+
     public function documents()
+    
     {
         return $this->hasMany(TblDocument::class);
     }
@@ -47,15 +56,7 @@ class TblProjet extends Model
         return $this->belongsToMany(User::class, 'collaborateur_projets');
     }
 
-    public function superviseurs()
-    {
-        return $this->belongsToMany(
-            TblSuperviseur::class,
-            'projet_superviseur',   // nom exact de la table pivot
-            'projet_id',            // clé étrangère locale dans la pivot
-            'superviseur_id'        // clé étrangère liée
-        );
-    }
+    
 
     public function collaborateurs()
     {
@@ -71,5 +72,5 @@ class TblProjet extends Model
     }
     
 }
-        // Envoi de la notification au superviseur
+        //
       

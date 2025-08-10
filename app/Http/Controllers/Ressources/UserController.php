@@ -13,7 +13,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        // Retourne tous les utilisateurs ayant le rôle admin
+        $admins = User::where('role', 'admin')->get();
+        return response()->json($admins);
     }
 
     /**

@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Ressources;
-
 use App\Http\Controllers\Controller;
 use App\Models\TblProjet;
 use Illuminate\Http\Request;
@@ -38,6 +36,7 @@ class TblProjetController extends Controller
                 'nom_categorie' => $projet->categorie->nom_cat,
                 'created_at' => $projet->created_at,
                 'updated_at' => $projet->updated_at,
+                'admin_id' => $projet->admin_id,
             ];
         });
 
@@ -54,6 +53,7 @@ class TblProjetController extends Controller
             'tbl_categorie_id' => 'required|exists:tbl_categories,id',
             'image' => 'required|image|max:2048',
             'type' => ['required', 'in:Projet,Memoire,Article'],
+            'admin_id' => 'nullable|integer|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -70,7 +70,18 @@ class TblProjetController extends Controller
             'tbl_categorie_id' => $request->tbl_categorie_id,
             'image' => $imageUrl,
             'type' => $request->type,
+            'admin_id' => $request->admin_id,
+            'status' => 'Pending',
+            'soumis' => true,
         ]);
+
+        // Notification uniquement à l'admin choisi (déjà fait ci-dessus)
+        if ($request->admin_id) {
+            $admin = \App\Models\User::find($request->admin_id);
+            if ($admin) {
+                $admin->notify(new \App\Notifications\ProjectSubmittedNotification($projet));
+            }
+        }
 
         return response()->json($projet, 201);
     }
@@ -78,6 +89,7 @@ class TblProjetController extends Controller
     public function show(string $id)
     {
         $projet = TblProjet::where('id', $id)->firstOrFail();
+        // Inclure le motif de rejet dans la réponse
         return response()->json($projet);
     }
 
@@ -133,5 +145,61 @@ class TblProjetController extends Controller
         $projet->delete();
 
         return response()->noContent();
+    }
+
+     public function rejectWithReason(Request $request, $id)
+    {
+        $request->validate([
+            'rejection_reason' => 'required|string|min:3',
+        ]);
+        $projet = TblProjet::findOrFail($id);
+        $projet->status = 'Rejected';
+        $projet->rejection_reason = $request->rejection_reason;
+        $projet->save();
+        return response()->json(['message' => 'Projet rejeté', 'projet' => $projet]);
+    }
+
+    /**
+     * Resoumettre un projet rejeté (utilisateur)
+     */
+    public function resubmit($id)
+    {
+        $projet = TblProjet::findOrFail($id);
+        if ($projet->status !== 'Rejected') {
+            return response()->json(['error' => 'Seuls les projets rejetés peuvent être resoumis.'], 400);
+        }
+        $projet->status = 'Pending';
+        $projet->rejection_reason = null;
+        $projet->save();
+        return response()->json(['message' => 'Projet resoumis', 'projet' => $projet]);
+    }
+
+    public function assignAdmin(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'admin_id' => 'required|exists:users,id',
+            ]);
+            $projet = TblProjet::find($id);
+            if (!$projet) {
+                \Log::error("Projet introuvable pour l'assignation d'admin", ['projet_id' => $id]);
+                return response()->json(['error' => "Projet introuvable"], 404);
+            }
+            $admin = \App\Models\User::where('id', $request->admin_id)->where('role', 'admin')->first();
+            if (!$admin) {
+                \Log::error("Admin introuvable ou n'est pas admin", ['admin_id' => $request->admin_id]);
+                return response()->json(['error' => "Admin introuvable ou n'est pas admin"], 400);
+            }
+            $projet->admin_id = $admin->id;
+            if ($projet->status !== 'Pending') {
+                $projet->status = 'Pending';
+            }
+            $projet->save();
+            $admin->notify(new \App\Notifications\ProjectSubmittedNotification($projet));
+            return response()->json(['message' => 'Admin assigné, projet soumis', 'projet' => $projet]);
+        } catch (\Exception $e) {
+            \Log::error('Erreur assignation admin', ['exception' => $e->getMessage()]);
+            return response()->json(['error' => 'Erreur serveur lors de l\'assignation de l\'admin', 'details' => $e->getMessage()], 500);
+        }
     }
 }

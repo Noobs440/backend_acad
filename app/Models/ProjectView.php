@@ -9,5 +9,13 @@ class ProjectView extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['tbl_projet_id', 'ip_address'];
+    protected $fillable = ['project_id', 'user_id'];
+
+    public function project() {
+        return $this->belongsTo(TblProjet::class, 'project_id');
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

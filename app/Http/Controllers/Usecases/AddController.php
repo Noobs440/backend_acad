@@ -44,10 +44,38 @@ class AddController extends Controller
         ], 201);
     }
 
-    // public function ajouterCollaborateur(Request $request, $id)
-    // {
+    public function ajouterCollaborateur(Request $request, $id)
+    {
+        $request->validate([
+            'nom_collab' => 'required|string',
+            'email_collab' => 'required|email',
+            'user_id' => 'nullable|integer|exists:users,id',
+        ]);
 
-    //     // fais ta methode ici en suivant l'exemple precedent et en adaptant juste en fonction des collaborateur
-    // }
+        $projet = \App\Models\TblProjet::findOrFail($id);
+
+        // On permet à un utilisateur/collaborateur d'être sur plusieurs projets
+        $collaborateur = \App\Models\TblCollaborateur::firstOrCreate(
+            [
+                'email_collab' => $request->email_collab,
+                'nom_collab' => $request->nom_collab,
+                'tbl_projet_id' => $projet->id,
+            ],
+            [
+                'user_id' => $request->user_id
+            ]
+        );
+
+        // Associer le collaborateur au projet via la table de jointure (sécurité)
+        if (method_exists($collaborateur, 'projets')) {
+            $collaborateur->projets()->syncWithoutDetaching([$projet->id]);
+        }
+
+        return response()->json([
+            'message' => 'Collaborateur ajouté au projet avec succès',
+            'collaborateur' => $collaborateur,
+            'projet_id' => $projet->id
+        ], 201);
+    }
 
 }

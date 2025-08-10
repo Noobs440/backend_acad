@@ -13,6 +13,7 @@ class ProjetSeeder extends Seeder
      */
     public function run(): void
     {
+
        TblProjet::create([
             'titre_projet'=>'Détection automatique des émotions',
             'descript_projet' => 'Développement d un système utilisant l intelligence artificielle pour détecter et analyser les émotions humaines à partir de vidéos en temps réel, en utilisant des techniques de traitement d image et de reconnaissance faciale.',
@@ -22,7 +23,8 @@ class ProjetSeeder extends Seeder
             'user_id'=>'1',
             'tbl_niveau_id'=>'1',
             'tbl_categorie_id'=>'1',
-
+            'admin_id'=>'2', // Hyacinthe Urbain (admin)
+            'created_at'=>'2025-09-10 10:00:00',
         ]);
 
         TblProjet::create([
@@ -34,31 +36,35 @@ class ProjetSeeder extends Seeder
             'user_id'=>'2',
             'tbl_niveau_id'=>'1',
             'tbl_categorie_id'=>'1',
+            'admin_id'=>'2', // Hyacinthe Urbain (admin)
+            'created_at'=>'2025-01-15 14:00:00',
         ]);
 
+        TblProjet::create([
+            'titre_projet'=>'Système de détection d intrusion',
+            'descript_projet' => 'Création d un système de détection d intrusion en temps réel pour les réseaux informatiques, utilisant des techniques d analyse comportementale et d apprentissage automatique pour identifier les activités suspectes.',
+            'image'=>'https://res.cloudinary.com/dmj6r3daf/image/upload/v1754073484/projets/img3.jpeg',
+            'soumis'=>'1',
+            'status'=>'Approved',
+            'user_id'=>'2',
+            'tbl_niveau_id'=>'1',
+            'tbl_categorie_id'=>'2',
+            'admin_id'=>'7', // mike diogni (admin)
+            'created_at'=>'2025-11-20 09:00:00',
+        ]);
 
-    TblProjet::create([
-        'titre_projet'=>'Système de détection d intrusion',
-        'descript_projet' => 'Création d un système de détection d intrusion en temps réel pour les réseaux informatiques, utilisant des techniques d analyse comportementale et d apprentissage automatique pour identifier les activités suspectes.',
-        'image'=>'https://res.cloudinary.com/dmj6r3daf/image/upload/v1754073484/projets/img3.jpeg',
-        'soumis'=>'1',
-        'status'=>'Approved',
-        'user_id'=>'2',
-        'tbl_niveau_id'=>'1',
-        'tbl_categorie_id'=>'2',
-
-    ]);
-
-    TblProjet::create([
-        'titre_projet'=>'Protection des données personnelles',
-        'descript_projet' => 'Développement d une solution de protection des données personnelles en ligne, en utilisant des algorithmes de cryptographie avancée et des protocoles de sécurisation des communications.',
-        'image'=>'https://res.cloudinary.com/dmj6r3daf/image/upload/v1754073484/projets/img4.jpeg',
-        'soumis'=>'1',
-        'status'=>'Rejected',
-        'user_id'=>'3',
-        'tbl_niveau_id'=>'1',
-        'tbl_categorie_id'=>'2',
-    ]);
+        TblProjet::create([
+            'titre_projet'=>'Protection des données personnelles',
+            'descript_projet' => 'Développement d une solution de protection des données personnelles en ligne, en utilisant des algorithmes de cryptographie avancée et des protocoles de sécurisation des communications.',
+            'image'=>'https://res.cloudinary.com/dmj6r3daf/image/upload/v1754073484/projets/img4.jpeg',
+            'soumis'=>'1',
+            'status'=>'Rejected',
+            'user_id'=>'3',
+            'tbl_niveau_id'=>'1',
+            'tbl_categorie_id'=>'2',
+            'admin_id'=>'7', // mike diogni (admin)
+            'created_at'=>'2025-09-25 16:00:00',
+        ]);
 
     TblProjet::create([
         'titre_projet'=>'Application de vote électronique',
@@ -69,7 +75,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'2',
         'tbl_niveau_id'=>'2',
         'tbl_categorie_id'=>'3',
-
+        'admin_id'=>'2', // Hyacinthe Urbain (admin)
     ]);
 
     TblProjet::create([
@@ -81,6 +87,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'4',
         'tbl_niveau_id'=>'4',
         'tbl_categorie_id'=>'3',
+        'admin_id'=>'7', // mike diogni (admin)
     ]);
 
     TblProjet::create([
@@ -92,7 +99,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'2',
         'tbl_niveau_id'=>'1',
         'tbl_categorie_id'=>'4',
-
+        'admin_id'=>'2', // Hyacinthe Urbain (admin)
     ]);
 
     TblProjet::create([
@@ -104,6 +111,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'1',
         'tbl_niveau_id'=>'2',
         'tbl_categorie_id'=>'4',
+        'admin_id'=>'7', // mike diogni (admin)
     ]);
 
     TblProjet::create([
@@ -115,7 +123,7 @@ class ProjetSeeder extends Seeder
         'user_id'=>'3',
         'tbl_niveau_id'=>'4',
         'tbl_categorie_id'=>'5',
-
+        'admin_id'=>'2', // Hyacinthe Urbain (admin)
     ]);
 
     TblProjet::create([

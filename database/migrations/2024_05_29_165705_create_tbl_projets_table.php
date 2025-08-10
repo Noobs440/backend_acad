@@ -21,12 +21,14 @@ return new class extends Migration
             $table->unsignedBigInteger('tbl_niveau_id');
             $table->integer('views')->default(0);
             $table->string('image');
-            $table->enum('status', ['Not Submitted','Pending', 'Approved', 'Rejected'])->default('Not Submitted');
+            $table->enum('status', ['Not Submitted','Pending', 'Approved', 'Rejected', 'Submitted'])->default('Not Submitted');
             $table->enum('type', ['Projet', 'Memoire', 'Article'])->default('Projet');
             $table->boolean('soumis')->default(false);
+            $table->unsignedBigInteger('admin_id')->nullable();
             $table->foreign('tbl_niveau_id')->references('id')->on('tbl_niveaux')->onDelete('cascade');
             $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(TblCategorie::class)->constrained()->onDelete('cascade');
+            $table->foreign('admin_id')->references('id')->on('users')->onDelete('set null');
             $table->timestamps();
         });
     }

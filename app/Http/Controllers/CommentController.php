@@ -9,16 +9,23 @@ use Illuminate\Http\Request;
 class CommentController extends Controller
 {
     // Récupérer tous les commentaires d'un projet
-public function index($projectId)
+public function index(Request $request, $projectId)
 {
+    $perPage = $request->get('per_page', 6);
     $comments = Comment::with('user')
         ->where('project_id', $projectId)
         ->orderBy('created_at', 'desc')
-        ->get();
+        ->paginate($perPage);
 
     return response()->json([
         'received_project_id' => $projectId,
-        'all_comments' => $comments
+        'comments' => $comments->items(),
+        'pagination' => [
+            'total' => $comments->total(),
+            'per_page' => $comments->perPage(),
+            'current_page' => $comments->currentPage(),
+            'last_page' => $comments->lastPage(),
+        ]
     ]);
 }
 

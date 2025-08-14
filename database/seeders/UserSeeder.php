@@ -33,12 +33,23 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
-            'nom_user'=>'jean',
-            "email"=>'jkeumeze@gmail.com',
-            'password'=> bcrypt('20056663'),
+            'nom_user'=>'Adminsys 1',
+            "email"=>'adminsys1@example.com',
+            'password'=> bcrypt('adminsys123'),
             'tbl_filiere_id'=>'1',
-            'matricule' => 'CM-UDS-22SCI0557',
+            'matricule' => 'CM-UDS-22SCI9991',
+            'role'=>'adminsys',
         ]);
+
+        User::create([
+            'nom_user'=>'Adminsys 2',
+            "email"=>'adminsys2@example.com',
+            'password'=> bcrypt('adminsys123'),
+            'tbl_filiere_id'=>'1',
+            'matricule' => 'CM-UDS-22SCI9992',
+            'role'=>'adminsys',
+        ]);
+    
 
         User::create([
             'nom_user'=>'Fosso Cabrel',

@@ -25,6 +25,7 @@ public function store(Request $request)
         'password' => 'required|string|min:6',
         'matricule' => 'nullable|string|max:255',
         'tbl_filiere_id' => 'nullable|exists:tbl_filieres,id',
+        'role' => 'required|string|in:admin,superviseur,user,adminsys',
     ]);
 
     $user = User::create([
@@ -50,8 +51,7 @@ public function update(Request $request, User $user)
         'email' => ['required','email', Rule::unique('users')->ignore($user->id)],
         'matricule' => 'nullable|string|max:100',
         'tbl_filiere_id' => 'nullable|integer|exists:tbl_filieres,id',
-        'role' => 'required|string|in:admin,superviseur,user',
-
+        'role' => 'required|string|in:admin,superviseur,user,adminsys',
     ]);
 
     $user->update($data);

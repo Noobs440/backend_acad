@@ -34,6 +34,10 @@ use App\Http\Controllers\Ressources\{
     TblDocumentController
 };
 
+// Route pour la mise à jour du statut d'un projet
+use App\Http\Controllers\TblProjetController as MainTblProjetController;
+Route::put('/usecases/status/projects/{id}', [MainTblProjetController::class, 'updateStatus']);
+
 /*
 |--------------------------------------------------------------------------
 | API Routes

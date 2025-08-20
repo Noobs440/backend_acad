@@ -22,6 +22,16 @@ class UserSeeder extends Seeder
             //'role'=>'admin'
         ]);
 
+        // Ajout d'un adminsys
+        User::create([
+            'nom_user'=>'Dongmo Joel',
+            'email'=>'dongmojoel@gmail.com',
+            'password'=>bcrypt('adminsys123'),
+            'tbl_filiere_id'=>'1',
+            'matricule'=>'CM-UDS-22SCI0999',
+            'role'=>'adminsys',
+        ]);
+
         User::create([
             'nom_user'=>'Hyacinthe Urbain',
             "email"=>'hyancintheurbainkamtemba@gmail.com',

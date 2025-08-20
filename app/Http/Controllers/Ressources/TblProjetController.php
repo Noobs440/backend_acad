@@ -15,6 +15,26 @@ class TblProjetController extends Controller
         $this->fileUploadService = $fileUploadService;
     }
 
+    /**
+     * Met à jour le statut d'un projet (admin)
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string',
+            'rejection_reason' => 'nullable|string',
+        ]);
+        $projet = TblProjet::findOrFail($id);
+        $projet->status = $request->status;
+        if ($request->status === 'Rejected' && $request->filled('rejection_reason')) {
+            $projet->rejection_reason = $request->rejection_reason;
+        } elseif ($request->status !== 'Rejected') {
+            $projet->rejection_reason = null;
+        }
+        $projet->save();
+        return response()->json(['message' => 'Statut du projet mis à jour', 'projet' => $projet]);
+    }
+
     public function index()
     {
         $projets = TblProjet::with('user', 'niveau', 'categorie')

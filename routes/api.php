@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CloudinaryController;
+use App\Http\Controllers\ActivityLogController;
 
 use App\Http\Controllers\Usecases\{
     ProfileController,
@@ -47,6 +48,8 @@ Route::put('/usecases/status/projects/{id}', [MainTblProjetController::class, 'u
 |
 */
 
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+    Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show']);
 
 Route::middleware('auth:sanctum')->post('/projects/{project}/chat-comments', [ChatController::class, 'store']);
 

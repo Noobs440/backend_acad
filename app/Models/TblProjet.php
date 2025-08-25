@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+use App\Traits\Auditable;
 
 class TblProjet extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory, Searchable, Auditable;
 
     protected $fillable = [
         'titre_projet',

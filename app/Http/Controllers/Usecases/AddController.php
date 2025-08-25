@@ -1,11 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Usecases;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TblProjet;
 use App\Models\TblDocument;
+use App\Notifications\CollaborateurAdded;
 
 class AddController extends Controller
 {
@@ -55,6 +54,7 @@ class AddController extends Controller
         $projet = \App\Models\TblProjet::findOrFail($id);
 
         // On permet à un utilisateur/collaborateur d'être sur plusieurs projets
+
         $collaborateur = \App\Models\TblCollaborateur::firstOrCreate(
             [
                 'email_collab' => $request->email_collab,
@@ -65,6 +65,15 @@ class AddController extends Controller
                 'user_id' => $request->user_id
             ]
         );
+
+        // Envoi de la notification au collaborateur si user_id existe
+        if ($request->user_id) {
+            $user = \App\Models\User::find($request->user_id);
+            if ($user) {
+                $adder = auth()->user() ?? $user; // Utilisateur qui ajoute, ou le user lui-même si non authentifié
+                $user->notify(new CollaborateurAdded($projet, $adder));
+            }
+        }
 
         // Associer le collaborateur au projet via la table de jointure (sécurité)
         if (method_exists($collaborateur, 'projets')) {

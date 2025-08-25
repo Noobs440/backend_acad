@@ -11,6 +11,33 @@ use Illuminate\Http\Request;
 
 class ListingController extends Controller
 {
+
+
+
+    // Retourne les projets non soumis d'un utilisateur (status = 'Not Submitted')
+    public function showUserNotSubmittedProjects($id)
+    {
+        $user = User::findOrFail($id);
+        $projets = $user->projets()->where('status', 'Not Submitted')->with(['niveau:id,code_niv', 'categorie:id,nom_cat'])->get();
+        $formattedProjets = $projets->map(function ($projet) {
+            return [
+                'id'=>$projet->id,
+                'user_id'=>$projet->user->id,
+                'titre' => $projet->titre_projet,
+                'description' => $projet->descript_projet,
+                'type' => $projet->type,
+                'views' => $projet->views,
+                'image' => $projet->image,
+                'status' => $projet->status,
+                'niveau' => $projet->niveau->code_niv,
+                'categorie' => $projet->categorie->nom_cat,
+                'nom_utilisateur' =>$projet->user->nom_user,
+                'created_at' => $projet->created_at,
+            ];
+        });
+        return response()->json($formattedProjets);
+    }
+
     public function showAdminProjects($id)
     {
         // Vérifier que l'utilisateur existe
@@ -320,6 +347,21 @@ public function showUserApprovedProjects($id)
         // Retourner les documents
         return response()->json($documents);
     }
+
+
+       /**
+     * Retourne tous les niveaux avec le nombre de projets associés
+     * GET /api/listing/levels-with-project-count
+     */
+    public function levelsWithProjectCount()
+    {
+        $niveaux = \App\Models\TblNiveau::withCount(['projets' => function($query) {
+            $query->where('status', 'Approved');
+        }])->get();
+        // Format : [{id, code_niv, intitule_niv, projets_count}]
+        return response()->json($niveaux);
+    }
+
 
     public function countProjectsByStatus()
     {

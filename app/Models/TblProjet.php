@@ -13,7 +13,6 @@ class TblProjet extends Model
     protected $fillable = [
         'titre_projet',
         'descript_projet',
-        // 'superviseurs' supprimé : plus de superviseur
         'tbl_niveau_id',
         'tbl_categorie_id',
         'user_id',
@@ -22,6 +21,7 @@ class TblProjet extends Model
         'admin_id',
         'soumis',
         'rejection_reason',
+        'status', 
     ];
 
     public function user()

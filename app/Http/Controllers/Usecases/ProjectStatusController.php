@@ -79,8 +79,20 @@ class ProjectStatusController extends Controller
         $project = TblProjet::findOrFail($id);
 
         // Mettre à jour le statut
-        $project->status = $request->input('status');
+        $oldStatus = $project->status;
+        $newStatus = $request->input('status');
+        $project->status = $newStatus;
         $project->save();
+
+        // Envoyer une notification à l'utilisateur si le statut a changé
+        if ($oldStatus !== $newStatus && $project->user) {
+            $message = null;
+            // Si motif de rejet fourni, l'ajouter au message
+            if ($newStatus === 'Rejected' && $request->has('motif')) {
+                $message = $request->input('motif');
+            }
+            $project->user->notify(new \App\Notifications\ProjectStatusChangeNotification($project, $newStatus, $message));
+        }
 
         // Retourner une réponse JSON
         return response()->json([

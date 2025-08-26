@@ -169,6 +169,7 @@ Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [AdminDashboard
 
     // Listing
     Route::prefix('listing')->controller(ListingController::class)->group(function () {
+    Route::get('/user/not_submitted/{id}', 'showUserNotSubmittedProjects');
         Route::get('/categorie/projets/{id}', 'showProjects');
         Route::get('/projet/documents/{id}', 'ShowDocuments');
         Route::get('/projet/collaborateurs/{id}', 'ShowCollaborateurs');
@@ -179,6 +180,7 @@ Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [AdminDashboard
         Route::get('/collaborateur/projets/{id}', 'showCollaboratorProjects');
         Route::get('/count/', 'countProjectsByStatus');
         Route::get('/getprojectstype', 'getProjectTypes');
+        Route::get('/levels-with-project-count', 'levelsWithProjectCount');
     });
 
     // Accueil
@@ -209,10 +211,12 @@ Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [AdminDashboard
 
     // Soumission projet
     Route::prefix('submit')->controller(SoumissionController::class)->group(function () {
-        Route::post('/{id}', 'submitProject')->middleware('web');
+    Route::post('/{id}', 'submitProject');
     });
 });
 
+// Historique des modifications d'un projet
+Route::get('/projects/{id}/history', [App\Http\Controllers\Ressources\TblProjetController::class, 'history']);
 
 Route::post('collaborateurs/add-to-project/{projectId}', [TblCollaborateurController::class, 'addToProject']);
 

@@ -5,6 +5,7 @@ use App\Models\TblProjet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Services\FileUploadService;
+use App\Models\ProjectHistory;
 
 class TblProjetController extends Controller
 {
@@ -32,6 +33,21 @@ class TblProjetController extends Controller
             $projet->rejection_reason = null;
         }
         $projet->save();
+
+        // Envoi de la notification à l'utilisateur du projet
+        $user = $projet->user;
+        if ($user) {
+            $message = '';
+            if ($projet->status === 'Approved') {
+                $message = 'Votre projet a été approuvé.';
+            } elseif ($projet->status === 'Rejected') {
+                $message = 'Votre projet a été rejeté.';
+            } else {
+                $message = 'Le statut de votre projet a changé.';
+            }
+            $user->notify(new \App\Notifications\ProjectStatusChangeNotification($projet, $projet->status, $message));
+        }
+
         return response()->json(['message' => 'Statut du projet mis à jour', 'projet' => $projet]);
     }
 
@@ -82,6 +98,13 @@ class TblProjetController extends Controller
 
         $imageUrl = $this->fileUploadService->uploadFile($request->file('image'), 'images/project');
 
+        // Si le projet est créé mais pas soumis, il doit être Not Submitted
+        $isInitialSubmission = $request->has('soumis') ? filter_var($request->soumis, FILTER_VALIDATE_BOOLEAN) : false;
+        // Sécurisation : si le champ status est absent ou incohérent, on force Not Submitted
+        $status = $isInitialSubmission ? 'Pending' : 'Not Submitted';
+        if ($request->has('status') && in_array($request->status, ['Pending','Approved','Rejected','Not Submitted'])) {
+            $status = $request->status;
+        }
         $projet = TblProjet::create([
             'titre_projet' => $request->titre_projet,
             'descript_projet' => $request->descript_projet,
@@ -91,8 +114,8 @@ class TblProjetController extends Controller
             'image' => $imageUrl,
             'type' => $request->type,
             'admin_id' => $request->admin_id,
-            'status' => 'Pending',
-            'soumis' => true,
+            'status' => $status,
+            'soumis' => $isInitialSubmission,
         ]);
 
         // Notification uniquement à l'admin choisi (déjà fait ci-dessus)
@@ -129,19 +152,42 @@ class TblProjetController extends Controller
         }
 
         $projet = TblProjet::where('id', $id)->firstOrFail();
-        $projet->titre_projet = $request->titre_projet;
-        $projet->descript_projet = $request->descript_projet;
-        $projet->tbl_niveau_id = $request->tbl_niveau_id;
-        $projet->user_id = $request->user_id;
-        $projet->tbl_categorie_id = $request->tbl_categorie_id;
+        $userId = $request->user_id ?? auth()->id();
+        $fields = [
+            'titre_projet',
+            'descript_projet',
+            'tbl_niveau_id',
+            'user_id',
+            'tbl_categorie_id',
+        ];
+        foreach ($fields as $field) {
+            if ($request->has($field) && $projet->$field != $request->$field) {
+                \App\Models\ProjectHistory::create([
+                    'projet_id' => $projet->id,
+                    'user_id' => $userId,
+                    'field' => $field,
+                    'old_value' => $projet->$field,
+                    'new_value' => $request->$field,
+                ]);
+                $projet->$field = $request->$field;
+            }
+        }
 
         if ($request->hasFile('image')) {
             if ($projet->image) {
                 $this->fileUploadService->deleteFile($projet->image);
             }
-
             $imageUrl = $this->fileUploadService->uploadFile($request->file('image'), 'images/project');
-            $projet->image = $imageUrl;
+            if ($projet->image != $imageUrl) {
+                \App\Models\ProjectHistory::create([
+                    'projet_id' => $projet->id,
+                    'user_id' => $userId,
+                    'field' => 'image',
+                    'old_value' => $projet->image,
+                    'new_value' => $imageUrl,
+                ]);
+                $projet->image = $imageUrl;
+            }
         }
 
         $projet->save();
@@ -166,6 +212,17 @@ class TblProjetController extends Controller
 
         return response()->noContent();
     }
+
+
+ public function history($id)
+    {
+        $histories = \App\Models\ProjectHistory::with('user')
+            ->where('projet_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return response()->json($histories);
+    }
+
 
      public function rejectWithReason(Request $request, $id)
     {

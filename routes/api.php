@@ -36,7 +36,7 @@ use App\Http\Controllers\Ressources\{
 };
 
 // Route pour la mise à jour du statut d'un projet
-use App\Http\Controllers\TblProjetController as MainTblProjetController;
+use App\Http\Controllers\Ressources\TblProjetController as MainTblProjetController;
 Route::put('/usecases/status/projects/{id}', [MainTblProjetController::class, 'updateStatus']);
 
 /*
@@ -83,6 +83,7 @@ Route::post('/upload-cloudinary', [CloudinaryController::class, 'upload']);
 Route::get('/download/cloudinary/{publicId}', [CloudinaryController::class, 'downloadCloudinaryFile'])
     ->where('publicId', '.*');
 
+Route::get('/projects', [App\Http\Controllers\ProjectController::class, 'getAllProjects']);
 Route::post('/projects/{id}/assign-supervisor', [App\Http\Controllers\ProjectController::class, 'assignSupervisor']);
 // Route pour récupérer les projets supervisés par l'utilisateur connecté
 Route::get('/projects/supervised', [App\Http\Controllers\ProjectController::class, 'getSupervisedProjects']);

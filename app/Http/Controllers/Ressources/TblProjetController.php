@@ -52,32 +52,43 @@ class TblProjetController extends Controller
     }
 
     public function index()
-    {
-        $projets = TblProjet::with('user', 'niveau', 'categorie')
-            ->where('soumis', true)
-            ->get();
+{
+    $projets = TblProjet::with('user', 'niveau', 'categorie')
+        ->where('soumis', true)
+        ->get();
 
-        $resultats = $projets->map(function ($projet) {
-            return [
-                'id' => $projet->id,
-                'titre_projet' => $projet->titre_projet,
-                'descript_projet' => $projet->descript_projet,
-                'image' => $projet->image,
-                'status' => $projet->status,
-                'nom_utilisateur' => $projet->user->nom_user,
-                'email' => $projet->user->email,
-                'views' => $projet->views,
-                'type' => $projet->type,
-                'niveau' => $projet->niveau->code_niv,
-                'nom_categorie' => $projet->categorie->nom_cat,
-                'created_at' => $projet->created_at,
-                'updated_at' => $projet->updated_at,
-                'admin_id' => $projet->admin_id,
-            ];
-        });
+    $resultats = $projets->map(function ($projet) {
+        return [
+            'id' => $projet->id,
+            'titre_projet' => $projet->titre_projet,
+            'descript_projet' => $projet->descript_projet,
+            'image' => $projet->image,
+            'status' => $projet->status,
 
-        return response()->json($resultats);
-    }
+            // Infos utilisateur
+            'user_id' => $projet->user->id,
+            'nom_utilisateur' => $projet->user->nom_user,
+            'email' => $projet->user->email,
+
+            // Infos niveau
+            'tbl_niveau_id' => $projet->niveau->id,
+            'niveau' => $projet->niveau->code_niv,
+
+            // Infos catégorie
+            'tbl_categorie_id' => $projet->categorie->id,
+            'nom_categorie' => $projet->categorie->nom_cat,
+
+            'views' => $projet->views,
+            'type' => $projet->type,
+            'created_at' => $projet->created_at,
+            'updated_at' => $projet->updated_at,
+            'admin_id' => $projet->admin_id,
+        ];
+    });
+
+    return response()->json($resultats);
+}
+
 
     public function store(Request $request)
     {

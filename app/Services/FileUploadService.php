@@ -8,43 +8,17 @@ use Illuminate\Http\UploadedFile;
 class FileUploadService
 {
     /**
-     * Upload un fichier sur Cloudinary dans un dossier donné.
+     * Upload un fichier sur S3 dans un dossier donné.
      *
      * @param UploadedFile $file
-     * @param string $folder Nom du dossier Cloudinary (ex: 'images/project')
+     * @param string $folder Nom du dossier S3 (ex: 'images/project')
      * @return string URL publique
      */
-public function uploadFile(UploadedFile $file, string $folder): string
-{
-    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-    $extension = strtolower($file->getClientOriginalExtension());
-    $uniqueName = $originalName . '_' . time() . '_' . uniqid() . '.' . $extension;
-
-    $resourceType = match (true) {
-        in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']) => 'image',
-        in_array($extension, ['mp4', 'mov', 'avi', 'mkv']) => 'video',
-        default => 'raw',
-    };
-
-    $uploaded = Cloudinary::upload($file->getRealPath(), [
-        'folder' => $folder, // par ex 'Projets', sans 'public/'
-        'public_id' => $uniqueName,
-        'resource_type' => $resourceType,
-        'use_filename' => true,
-        'overwrite' => false,
-    ]);
-
-    // Ici, on récupère le chemin complet
-    $url = $uploaded->getSecurePath();
-
-    /* Si c’est raw, vérifie et ajuste
-    if ($resourceType === 'raw' && !str_contains($url, '/raw/upload/')) {
-        $url = 'https://res.cloudinary.com/' . config('cloudinary.cloud_name') .
-               '/raw/upload/' . $uploaded->getVersion() . '/' . $uploaded->getPublicId();
-    }*/
-
-    return $url;
-}
+    public function uploadFile(UploadedFile $file, string $folder): string
+    {
+        $path = $file->store($folder, 's3');
+        return \Storage::disk('s3')->url($path);
+    }
 
 
 
@@ -57,18 +31,13 @@ public function uploadFile(UploadedFile $file, string $folder): string
 
 
     /**
-     * Supprime un fichier de Cloudinary à partir de son public ID.
+     * Supprime un fichier de S3 à partir de son chemin.
      *
-     * @param string $publicId
+     * @param string $path
      * @return bool
      */
-    public function deleteFile(string $publicId): bool
+    public function deleteFile(string $path): bool
     {
-        try {
-            Cloudinary::destroy($publicId, ['resource_type' => 'auto']);
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+        return \Storage::disk('s3')->delete($path);
     }
 }

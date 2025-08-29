@@ -38,7 +38,7 @@ public function index(Request $request, $projectId)
         ];
 
         if (!$request->user()) {
-            $rules['visitor_name'] = 'required|string|max:100';
+            $rules['visitor_name'] = 'nullable|string|max:100';
             $rules['visitor_email'] = 'nullable|email|max:255';
         }
 
@@ -53,7 +53,7 @@ public function index(Request $request, $projectId)
             $comment->visitor_email = null;
         } else {
             $comment->user_id = null;
-            $comment->visitor_name = $validated['visitor_name'];
+            $comment->visitor_name = $validated['visitor_name'] ?? null;
             $comment->visitor_email = $validated['visitor_email'] ?? null;
         }
 

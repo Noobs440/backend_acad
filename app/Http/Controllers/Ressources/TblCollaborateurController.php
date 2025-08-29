@@ -87,6 +87,7 @@ class TblCollaborateurController extends Controller
             return response()->json(['message' => 'Projet non trouvé'], 404);
         }
 
+
         // Crée ou récupère le collaborateur
         $collab = TblCollaborateur::firstOrCreate(
             ['email_collab' => $request->email],
@@ -97,7 +98,14 @@ class TblCollaborateurController extends Controller
         $collab->projets()->syncWithoutDetaching([$projectId]);
 
         // Envoie un email
-        Mail::to($collab->email_collab)->send(new CollaborateurAdded($collab));
+        Mail::to($collab->email_collab)->send(new \App\Mail\CollaborateurAdded($collab));
+
+        // Envoie une notification (base de données) si le collaborateur existe comme utilisateur
+        $user = \App\Models\User::where('email', $collab->email_collab)->first();
+        if ($user) {
+            $adder = $request->user(); // L'utilisateur qui effectue la requête (ajoute le collaborateur)
+            $user->notify(new \App\Notifications\CollaborateurAdded($projet, $adder));
+        }
 
         return response()->json([
             'message' => 'Collaborateur ajouté au projet et email envoyé !',

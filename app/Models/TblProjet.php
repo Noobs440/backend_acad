@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+use App\Traits\Auditable;
 
 class TblProjet extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory, Searchable, Auditable;
 
     protected $fillable = [
         'titre_projet',
         'descript_projet',
-        // 'superviseurs' supprimé : plus de superviseur
         'tbl_niveau_id',
         'tbl_categorie_id',
         'user_id',
@@ -22,6 +22,7 @@ class TblProjet extends Model
         'admin_id',
         'soumis',
         'rejection_reason',
+        'status', 
     ];
 
     public function user()

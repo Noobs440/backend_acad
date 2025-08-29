@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+use App\Traits\Auditable;
 
 /**
  * @OA\Schema(
@@ -21,7 +22,7 @@ use Laravel\Scout\Searchable;
  */
 class TblCollaborateur extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory, Searchable,Auditable;
 
     protected $table = 'tbl_collaborateurs';
 

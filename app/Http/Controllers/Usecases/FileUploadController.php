@@ -49,8 +49,7 @@ class FileUploadController extends Controller
         ]);
 
         $file = $request->file('file');
-
-        // Exemple : dossier Cloudinary = "images/project"
+        // Dossier S3 = "images/project" ou "documents" selon le besoin
         $url = $this->uploadService->uploadFile($file, 'images/project');
 
         return response()->json(['url' => $url], 200, [], JSON_UNESCAPED_SLASHES);
@@ -83,10 +82,10 @@ class FileUploadController extends Controller
     public function deleteFile(Request $request)
     {
         $request->validate([
-            'public_id' => 'required|string',
+            'path' => 'required|string',
         ]);
 
-        $deleted = $this->uploadService->deleteFile($request->input('public_id'));
+        $deleted = $this->uploadService->deleteFile($request->input('path'));
 
         if ($deleted) {
             return response()->json(['message' => 'File deleted successfully.']);

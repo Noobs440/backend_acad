@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CloudinaryController;
+use App\Http\Controllers\ActivityLogController;
 
 use App\Http\Controllers\Usecases\{
     ProfileController,
@@ -34,6 +35,10 @@ use App\Http\Controllers\Ressources\{
     TblDocumentController
 };
 
+// Route pour la mise à jour du statut d'un projet
+use App\Http\Controllers\Ressources\TblProjetController as MainTblProjetController;
+Route::put('/usecases/status/projects/{id}', [MainTblProjetController::class, 'updateStatus']);
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -43,6 +48,8 @@ use App\Http\Controllers\Ressources\{
 |
 */
 
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+    Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show']);
 
 Route::middleware('auth:sanctum')->post('/projects/{project}/chat-comments', [ChatController::class, 'store']);
 
@@ -76,6 +83,7 @@ Route::post('/upload-cloudinary', [CloudinaryController::class, 'upload']);
 Route::get('/download/cloudinary/{publicId}', [CloudinaryController::class, 'downloadCloudinaryFile'])
     ->where('publicId', '.*');
 
+Route::get('/projects', [App\Http\Controllers\ProjectController::class, 'getAllProjects']);
 Route::post('/projects/{id}/assign-supervisor', [App\Http\Controllers\ProjectController::class, 'assignSupervisor']);
 // Route pour récupérer les projets supervisés par l'utilisateur connecté
 Route::get('/projects/supervised', [App\Http\Controllers\ProjectController::class, 'getSupervisedProjects']);
@@ -162,6 +170,7 @@ Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [AdminDashboard
 
     // Listing
     Route::prefix('listing')->controller(ListingController::class)->group(function () {
+    Route::get('/user/not_submitted/{id}', 'showUserNotSubmittedProjects');
         Route::get('/categorie/projets/{id}', 'showProjects');
         Route::get('/projet/documents/{id}', 'ShowDocuments');
         Route::get('/projet/collaborateurs/{id}', 'ShowCollaborateurs');
@@ -172,6 +181,7 @@ Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [AdminDashboard
         Route::get('/collaborateur/projets/{id}', 'showCollaboratorProjects');
         Route::get('/count/', 'countProjectsByStatus');
         Route::get('/getprojectstype', 'getProjectTypes');
+        Route::get('/levels-with-project-count', 'levelsWithProjectCount');
     });
 
     // Accueil
@@ -202,10 +212,12 @@ Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [AdminDashboard
 
     // Soumission projet
     Route::prefix('submit')->controller(SoumissionController::class)->group(function () {
-        Route::post('/{id}', 'submitProject')->middleware('web');
+    Route::post('/{id}', 'submitProject');
     });
 });
 
+// Historique des modifications d'un projet
+Route::get('/projects/{id}/history', [App\Http\Controllers\Ressources\TblProjetController::class, 'history']);
 
 Route::post('collaborateurs/add-to-project/{projectId}', [TblCollaborateurController::class, 'addToProject']);
 

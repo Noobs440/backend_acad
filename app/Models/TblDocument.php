@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+use App\Traits\Auditable;
 
 
 /**
@@ -49,7 +50,7 @@ use Laravel\Scout\Searchable;
 
 class TblDocument extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory, Searchable, Auditable;
 
     /**
      * The attributes that are mass assignable.

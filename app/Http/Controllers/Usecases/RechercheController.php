@@ -97,7 +97,13 @@ class RechercheController extends Controller
                     'query' => [
                         'multi_match' => [
                             'query' => $query,
-                            'fields' => ['titre_projet^3', 'titre_projet.ngram'],
+                            'fields' => [
+                                'titre_projet^3',
+                                'titre_projet.ngram',
+                                'descript_projet',
+                                'niveau_code',
+                                'niveau_intitule'
+                            ],
                             'fuzziness' => 'AUTO',
                             'prefix_length' => 1,
                             'operator' => 'and'

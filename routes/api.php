@@ -224,3 +224,6 @@ Route::post('collaborateurs/add-to-project/{projectId}', [TblCollaborateurContro
 Route::get('/admins', [App\Http\Controllers\Ressources\UserController::class, 'index']);
 // Projets dont l'utilisateur est admin
 Route::get('/listing/admin/projets/{id}', [\App\Http\Controllers\Usecases\ListingController::class, 'showAdminProjects']);
+
+// Route pour récupérer les collaborateurs d'un projet donné
+Route::get('/projects/{id}/collaborators', [TblCollaborateurController::class, 'getCollaboratorsByProject']);

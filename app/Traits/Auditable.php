@@ -61,7 +61,6 @@ trait Auditable
                 'user_agent'  => request()?->userAgent(),
             ]);
         } catch (\Throwable $e) {
-            Log::error('Audit log error: ' . $e->getMessage());
         }
     }
 }

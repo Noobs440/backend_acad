@@ -96,6 +96,7 @@ Route::prefix('ressources')->group(function () {
     Route::apiResource('collaborateurs', TblCollaborateurController::class);
     //Route::apiResource('superviseurs', TblSuperviseurController::class);
     Route::apiResource('niveaux', TblNiveauController::class);
+    Route::get('niveaux/search', [TblNiveauController::class, 'search']);
     Route::apiResource('categories', TblCategorieController::class);
     Route::apiResource('projets', TblProjetController::class);
     // Assigner un admin à un projet existant
@@ -224,3 +225,6 @@ Route::post('collaborateurs/add-to-project/{projectId}', [TblCollaborateurContro
 Route::get('/admins', [App\Http\Controllers\Ressources\UserController::class, 'index']);
 // Projets dont l'utilisateur est admin
 Route::get('/listing/admin/projets/{id}', [\App\Http\Controllers\Usecases\ListingController::class, 'showAdminProjects']);
+
+// Route pour récupérer les collaborateurs d'un projet donné
+Route::get('/projects/{id}/collaborators', [TblCollaborateurController::class, 'getCollaboratorsByProject']);

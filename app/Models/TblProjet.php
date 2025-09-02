@@ -69,6 +69,8 @@ class TblProjet extends Model
         return [
             'titre_projet' => $this->titre_projet,
             'descript_projet' => $this->descript_projet,
+            'niveau_code' => optional($this->niveau)->code_niv,
+            'niveau_intitule' => optional($this->niveau)->intitule_niv,
         ];
     }
     

@@ -121,4 +121,10 @@ class TblCollaborateurController extends Controller
         }
         return response()->noContent();
     }
+
+    public function getCollaboratorsByProject($projectId)
+    {
+        $collaborateurs = TblCollaborateur::where('tbl_projet_id', $projectId)->get();
+        return response()->json($collaborateurs);
+    }
 }

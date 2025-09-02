@@ -273,7 +273,9 @@ class TblProjetController extends Controller
                 \Log::error("Projet introuvable pour l'assignation d'admin", ['projet_id' => $id]);
                 return response()->json(['error' => "Projet introuvable"], 404);
             }
-            $admin = \App\Models\User::where('id', $request->admin_id)->where('role', 'admin')->first();
+            $admin = \App\Models\User::where('id', $request->admin_id)
+                ->whereIn('role', ['admin', 'adminsys'])
+                ->first();
             if (!$admin) {
                 \Log::error("Admin introuvable ou n'est pas admin", ['admin_id' => $request->admin_id]);
                 return response()->json(['error' => "Admin introuvable ou n'est pas admin"], 400);

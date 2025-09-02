@@ -1,7 +1,7 @@
 @component('mail::message')
 # Bonjour {{ $collab->nom_collab }},
 
-Vous avez été ajouté en tant que **collaborateur** sur un projet dans la plateforme **AcadProManage**.
+Vous avez été ajouté en tant que **collaborateur** sur un projet dans la plateforme **CollabFacultyRise**.
 
 Merci de consulter votre compte pour voir les détails du projet.
 

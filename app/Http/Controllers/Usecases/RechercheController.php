@@ -74,7 +74,7 @@ class RechercheController extends Controller
         // Formater les résultats des catégories avec les détails des projets
         $formattedCategories = $categoryResults->flatMap(function ($category) {
             return $category->projets->filter(function ($project) {
-                return $project->status === 'Approved'; // Filtrer les projets approuvés
+                return $project->status === 'Approved'; 
             })->map(function ($project) {
                 return [
                     'titre_projet' => $project->titre_projet,

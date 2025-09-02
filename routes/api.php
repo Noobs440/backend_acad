@@ -96,6 +96,7 @@ Route::prefix('ressources')->group(function () {
     Route::apiResource('collaborateurs', TblCollaborateurController::class);
     //Route::apiResource('superviseurs', TblSuperviseurController::class);
     Route::apiResource('niveaux', TblNiveauController::class);
+    Route::get('niveaux/search', [TblNiveauController::class, 'search']);
     Route::apiResource('categories', TblCategorieController::class);
     Route::apiResource('projets', TblProjetController::class);
     // Assigner un admin à un projet existant

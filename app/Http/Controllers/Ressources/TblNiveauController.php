@@ -9,6 +9,20 @@ use Illuminate\Support\Facades\Validator;
 
 class TblNiveauController extends Controller
 {
+
+    /**
+     * Recherche de niveaux par code ou nom
+     * GET /api/ressources/niveaux/search?q=motcle
+     */
+    public function search(Request $request)
+    {
+        $q = $request->query('q', '');
+        $niveaux = TblNiveau::query()
+            ->where('code_niv', 'like', "%$q%")
+            ->orWhere('intitule_niv', 'like', "%$q%")
+            ->get();
+        return response()->json($niveaux);
+    }
     /**
      * @OA\Get(
      *     path="/api/ressources/niveaux",

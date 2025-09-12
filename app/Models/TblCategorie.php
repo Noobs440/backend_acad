@@ -35,7 +35,7 @@ use OwenIt\Auditing\Audit;
 
 class TblCategorie extends Model
 {
-    use HasFactory, Searchable,Auditable;
+    use HasFactory, Auditable;
 
     /**
      * The attributes that are mass assignable.

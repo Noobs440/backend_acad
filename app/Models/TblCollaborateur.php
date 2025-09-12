@@ -22,7 +22,7 @@ use App\Traits\Auditable;
  */
 class TblCollaborateur extends Model
 {
-    use HasFactory, Searchable,Auditable;
+    use HasFactory, Auditable;
 
     protected $table = 'tbl_collaborateurs';
 

@@ -34,12 +34,6 @@ class SoumissionController extends Controller
         $project->status = 'Pending';
         $project->save();
 
-        Log::info('Soumission projet', [
-            'projet_id' => $project->id,
-            'admin_id' => $project->admin_id,
-            'soumis' => $project->soumis,
-            'status' => $project->status
-        ]);
 
         // Notifie l'admin assigné uniquement
         $admin = $project->admin;

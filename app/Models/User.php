@@ -14,7 +14,7 @@ use App\Traits\Auditable;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable,Searchable,Auditable;
+    use HasApiTokens, HasFactory, Notifiable, Auditable;
 
     public function sendPasswordResetNotification($token)
     {

@@ -36,8 +36,77 @@ use App\Http\Controllers\Ressources\{
 };
 
 // Route pour la mise à jour du statut d'un projet
+
 use App\Http\Controllers\Ressources\TblProjetController as MainTblProjetController;
-Route::put('/usecases/status/projects/{id}', [MainTblProjetController::class, 'updateStatus']);
+
+// Regroupe toutes les routes critiques sous auth:sanctum
+Route::middleware('auth:sanctum')->group(function () {
+    // Statut projet
+    Route::put('/usecases/status/projects/{id}', [MainTblProjetController::class, 'updateStatus']);
+
+    // Activity logs
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+    Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show']);
+
+    // Chat comments
+    Route::post('/projects/{project}/chat-comments', [ChatController::class, 'store']);
+
+    // User management
+    Route::get('/user-management', [UserManagementController::class, 'index']);
+    Route::post('/user-management', [UserManagementController::class, 'store']);
+    Route::put('/user-management/{user}', [UserManagementController::class, 'update']);
+    Route::delete('/user-management/{user}', [UserManagementController::class, 'destroy']);
+    Route::put('/user-management/{id}/reset-password', [UserManagementController::class, 'resetPassword']);
+
+    // Comments
+    Route::get('/user/{userId}/conversations', [CommentController::class, 'userConversations']);
+    Route::get('/projects/{projectId}/comments', [CommentController::class, 'index']);
+    Route::post('/projects/{project}/comments', [CommentController::class, 'store']);
+    Route::get('/user/{userId}/comment-conversations', [CommentController::class, 'userConversationsWithComments']);
+
+    // Profile
+    Route::get('/user', [ProfileController::class, 'getUserProfile']);
+    Route::put('/user/update-name', [ProfileController::class, 'updateName']);
+    Route::put('/user/email', [ProfileController::class, 'updateEmail']);
+    Route::put('/user/update-password', [ProfileController::class, 'updatePassword']);
+    Route::post('/user/photo', [ProfileController::class, 'updatePhoto']);
+
+    // Cloudinary
+    Route::post('/upload-cloudinary', [CloudinaryController::class, 'upload']);
+    Route::get('/download/cloudinary/{publicId}', [CloudinaryController::class, 'downloadCloudinaryFile'])
+        ->where('publicId', '.*');
+
+    // Projects
+    Route::get('/projects', [App\Http\Controllers\ProjectController::class, 'getAllProjects']);
+    Route::post('/projects/{id}/assign-supervisor', [App\Http\Controllers\ProjectController::class, 'assignSupervisor']);
+    Route::get('/projects/supervised', [App\Http\Controllers\ProjectController::class, 'getSupervisedProjects']);
+    Route::get('/projects/{id}/history', [App\Http\Controllers\Ressources\TblProjetController::class, 'history']);
+    Route::get('/projects/{id}/collaborators', [TblCollaborateurController::class, 'getCollaboratorsByProject']);
+
+    // Admins
+    Route::get('/admins', [App\Http\Controllers\Ressources\UserController::class, 'index']);
+    Route::get('/listing/admin/projets/{id}', [\App\Http\Controllers\Usecases\ListingController::class, 'showAdminProjects']);
+
+    // Collaborateurs
+    Route::post('collaborateurs/add-to-project/{projectId}', [TblCollaborateurController::class, 'addToProject']);
+
+    // Ressources CRUD
+    Route::prefix('ressources')->group(function () {
+        Route::apiResource('universites', TblUniversiteController::class);
+        Route::apiResource('facultes', TblFaculteController::class);
+        Route::apiResource('filieres', TblFiliereController::class);
+        Route::apiResource('collaborateurs', TblCollaborateurController::class);
+        //Route::apiResource('superviseurs', TblSuperviseurController::class);
+        Route::apiResource('niveaux', TblNiveauController::class);
+        Route::get('niveaux/search', [TblNiveauController::class, 'search']);
+        Route::apiResource('categories', TblCategorieController::class);
+        Route::apiResource('projets', TblProjetController::class);
+        Route::post('projets/{id}/assign-admin', [TblProjetController::class, 'assignAdmin']);
+        Route::post('projets/{id}/reject', [TblProjetController::class, 'rejectWithReason']);
+        Route::post('projets/{id}/resubmit', [TblProjetController::class, 'resubmit']);
+        Route::apiResource('documents', TblDocumentController::class);
+    });
+});
 
 /*
 |--------------------------------------------------------------------------

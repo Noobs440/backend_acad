@@ -9,7 +9,7 @@ use App\Traits\Auditable;
 
 class TblProjet extends Model
 {
-    use HasFactory, Searchable, Auditable;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'titre_projet',

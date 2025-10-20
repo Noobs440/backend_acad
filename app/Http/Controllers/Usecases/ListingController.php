@@ -122,7 +122,6 @@ class ListingController extends Controller
             })->filter();
             return response()->json($formattedProjets->values());
         } catch (\Throwable $e) {
-            \Log::error('Erreur showCollaboratorProjects: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['error' => 'Erreur lors de la récupération des projets en collaboration', 'details' => $e->getMessage()], 500);
         }
     }

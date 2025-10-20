@@ -270,14 +270,12 @@ class TblProjetController extends Controller
             ]);
             $projet = TblProjet::find($id);
             if (!$projet) {
-                \Log::error("Projet introuvable pour l'assignation d'admin", ['projet_id' => $id]);
                 return response()->json(['error' => "Projet introuvable"], 404);
             }
             $admin = \App\Models\User::where('id', $request->admin_id)
                 ->whereIn('role', ['admin', 'adminsys'])
                 ->first();
             if (!$admin) {
-                \Log::error("Admin introuvable ou n'est pas admin", ['admin_id' => $request->admin_id]);
                 return response()->json(['error' => "Admin introuvable ou n'est pas admin"], 400);
             }
             $projet->admin_id = $admin->id;
@@ -288,7 +286,6 @@ class TblProjetController extends Controller
             $admin->notify(new \App\Notifications\ProjectSubmittedNotification($projet));
             return response()->json(['message' => 'Admin assigné, projet soumis', 'projet' => $projet]);
         } catch (\Exception $e) {
-            \Log::error('Erreur assignation admin', ['exception' => $e->getMessage()]);
             return response()->json(['error' => 'Erreur serveur lors de l\'assignation de l\'admin', 'details' => $e->getMessage()], 500);
         }
     }

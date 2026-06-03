@@ -274,9 +274,9 @@ Route::middleware('auth:sanctum')->get('/admin/dashboard-stats', [AdminDashboard
 
     // Statut projets
     Route::prefix('status')->controller(ProjectStatusController::class)->group(function () {
-        Route::get('/approved/pending/{id}', 'approvePendingProject')->middleware('web');
+        Route::patch('/approved/pending/{id}', 'approvePendingProject')->middleware('web');
         Route::patch('/rejected/pending/{id}', 'rejectPendingProject')->middleware('web');
-        Route::get('/pending/{id}', 'PendingProject')->middleware('web');
+        Route::patch('/pending/{id}', 'pendingProject')->middleware('web');
         Route::put('projects/{id}', 'updateStatus')->middleware('web');
     });
 

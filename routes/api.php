@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User management
     Route::get('/user-management', [UserManagementController::class, 'index']);
+    Route::get('/users', [UserManagementController::class, 'search']); // Recherche d'utilisateurs
     Route::post('/user-management', [UserManagementController::class, 'store']);
     Route::put('/user-management/{user}', [UserManagementController::class, 'update']);
     Route::delete('/user-management/{user}', [UserManagementController::class, 'destroy']);
@@ -196,6 +197,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Notifications
         Route::controller(NotificationController::class)->group(function () {
             Route::get('notifications', 'getNotifications');
+            Route::post('notifications', 'sendNotification');
             Route::post('notifications/read/{id}', 'markAsRead');
             Route::post('notifications/readAll', 'markAllAsRead');
         });

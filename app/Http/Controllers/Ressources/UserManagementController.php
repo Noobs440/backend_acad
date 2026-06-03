@@ -17,6 +17,29 @@ class UserManagementController extends Controller
         return response()->json($users);
     }
 
+    // Recherche d'utilisateurs par email ou nom avec filtrage par rôle
+    public function search(Request $request)
+    {
+        $query = User::select('id', 'nom_user', 'email', 'photo', 'matricule', 'tbl_filiere_id', 'role');
+
+        // Filtrer par rôle si spécifié
+        if ($request->has('role') && $request->input('role')) {
+            $query->where('role', $request->input('role'));
+        }
+
+        // Rechercher par email ou nom
+        if ($request->has('search') && $request->input('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('email', 'like', '%' . $search . '%')
+                  ->orWhere('nom_user', 'like', '%' . $search . '%');
+            });
+        }
+
+        $users = $query->limit(10)->get();
+        return response()->json($users);
+    }
+
 public function store(Request $request)
 {
     $validated = $request->validate([

@@ -38,7 +38,8 @@ class SoumissionController extends Controller
         // Notifie l'admin assigné uniquement
         $admin = $project->admin;
         if ($admin) {
-            $admin->notify(new ProjectSubmittedNotification($project));
+            $senderName = auth()->user()->nom_user ?? auth()->user()->name ?? 'Un utilisateur';
+            $admin->notify(new ProjectSubmittedNotification($project, $senderName));
         }
 
         return response()->json(['message' => 'Projet soumis avec succès.']);

@@ -23,13 +23,26 @@ class TblCollaborateurController extends Controller
         $validator = Validator::make($request->all(), [
             'nom_collab'=>'required|max:255',
             'email_collab'=>'required|email|max:255',
-
             'tbl_projet_id' => 'required|exists:tbl_projets,id',
-
             'user_id' => 'required|exists:users,id',
         ]);
         if($validator->fails()){
             return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $projet = TblProjet::find($request->tbl_projet_id);
+        $projetOwnerEmail = optional($projet->user)->email;
+
+        if ($projet && $projetOwnerEmail && strtolower($request->email_collab) === strtolower($projetOwnerEmail)) {
+            return response()->json([
+                'message' => 'Le créateur du projet ne peut pas être ajouté comme collaborateur.'
+            ], 422);
+        }
+
+        if ($projet && $request->user_id && intval($request->user_id) === intval($projet->user_id)) {
+            return response()->json([
+                'message' => 'Le créateur du projet ne peut pas être ajouté comme collaborateur.'
+            ], 422);
         }
 
         $collaborateur = TblCollaborateur::create([
@@ -60,6 +73,21 @@ class TblCollaborateurController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
+        $projet = TblProjet::find($request->tbl_projet_id);
+        $projetOwnerEmail = optional($projet->user)->email;
+
+        if ($projet && $projetOwnerEmail && strtolower($request->email_collab) === strtolower($projetOwnerEmail)) {
+            return response()->json([
+                'message' => 'Le créateur du projet ne peut pas être ajouté comme collaborateur.'
+            ], 422);
+        }
+
+        if ($projet && $request->user_id && intval($request->user_id) === intval($projet->user_id)) {
+            return response()->json([
+                'message' => 'Le créateur du projet ne peut pas être ajouté comme collaborateur.'
+            ], 422);
+        }
+
         $collaborateur = TblCollaborateur::findOrFail($id);
         $collaborateur->nom_collab = $request->nom_collab;
         $collaborateur->email_collab = $request->email_collab;
@@ -87,6 +115,12 @@ class TblCollaborateurController extends Controller
             return response()->json(['message' => 'Projet non trouvé'], 404);
         }
 
+        $projetOwnerEmail = optional($projet->user)->email;
+        if ($projetOwnerEmail && strtolower($request->email) === strtolower($projetOwnerEmail)) {
+            return response()->json([
+                'message' => 'Le créateur du projet ne peut pas être ajouté comme collaborateur.'
+            ], 422);
+        }
 
         // Crée ou récupère le collaborateur
         $collab = TblCollaborateur::firstOrCreate(

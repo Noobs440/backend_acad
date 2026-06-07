@@ -129,13 +129,7 @@ class TblProjetController extends Controller
             'soumis' => $isInitialSubmission,
         ]);
 
-        // Notification uniquement à l'admin choisi (déjà fait ci-dessus)
-        if ($request->admin_id) {
-            $admin = \App\Models\User::find($request->admin_id);
-            if ($admin) {
-                $admin->notify(new \App\Notifications\ProjectSubmittedNotification($projet));
-            }
-        }
+        // N'envoyer aucune notification ici - la notification est envoyée uniquement lors de la soumission via SoumissionController
 
         return response()->json($projet, 201);
     }
@@ -283,8 +277,7 @@ class TblProjetController extends Controller
                 $projet->status = 'Pending';
             }
             $projet->save();
-            $admin->notify(new \App\Notifications\ProjectSubmittedNotification($projet));
-            return response()->json(['message' => 'Admin assigné, projet soumis', 'projet' => $projet]);
+            return response()->json(['message' => 'Admin assigné', 'projet' => $projet]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Erreur serveur lors de l\'assignation de l\'admin', 'details' => $e->getMessage()], 500);
         }

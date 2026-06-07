@@ -53,6 +53,19 @@ class AddController extends Controller
 
         $projet = \App\Models\TblProjet::findOrFail($id);
 
+        $projetOwnerEmail = optional($projet->user)->email;
+        if ($projetOwnerEmail && strtolower($request->email_collab) === strtolower($projetOwnerEmail)) {
+            return response()->json([
+                'message' => 'Le créateur du projet ne peut pas être ajouté comme collaborateur.'
+            ], 422);
+        }
+
+        if ($request->user_id && intval($request->user_id) === intval($projet->user_id)) {
+            return response()->json([
+                'message' => 'Le créateur du projet ne peut pas être ajouté comme collaborateur.'
+            ], 422);
+        }
+
         // On permet à un utilisateur/collaborateur d'être sur plusieurs projets
 
         $collaborateur = \App\Models\TblCollaborateur::firstOrCreate(

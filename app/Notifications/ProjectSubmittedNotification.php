@@ -12,10 +12,12 @@ class ProjectSubmittedNotification extends Notification implements ShouldQueue
     use Queueable;
 
     protected $project;
+    protected $senderName;
 
-    public function __construct($project)
+    public function __construct($project, string $senderName = '')
     {
         $this->project = $project;
+        $this->senderName = $senderName ?: optional($project->user)->nom_user ?: optional($project->user)->name ?: 'un utilisateur';
     }
 
     public function via($notifiable)
@@ -26,7 +28,7 @@ class ProjectSubmittedNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('Un nouveau projet a été soumis.')
+                    ->line('Le projet "' . $this->project->titre_projet . '" a été soumis pour validation par ' . $this->senderName . '.')
                     ->action('Voir le projet', url('/projects/' . $this->project->id))
                     ->line('Merci de vérifier le projet.');
     }
@@ -34,9 +36,13 @@ class ProjectSubmittedNotification extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
+            'type' => 'project_submitted',
             'project_id' => $this->project->id,
+            'projet_id' => $this->project->id,
             'project_title' => $this->project->titre_projet,
-            'message' => 'Un nouveau projet a été soumis.'
+            'submitted_by' => $this->senderName,
+            'status' => 'Pending',
+            'message' => 'Le projet "' . $this->project->titre_projet . '" a été soumis pour validation par ' . $this->senderName . '.'
         ];
     }
 }

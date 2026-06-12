@@ -31,8 +31,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
         $this->call(NiveauSeeder::class);
         $this->call(CategorieSeeder::class);
-        $this->call(ProjetSeeder::class);
-        $this->call(DocumentSeeder::class);
 
 
         //TblProjet::factory()->count(10)->create();

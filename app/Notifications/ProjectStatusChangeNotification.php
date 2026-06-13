@@ -37,11 +37,11 @@ class ProjectStatusChangeNotification extends Notification
         $message = '';
 
         if ($this->status === 'Approved') {
-            $message = 'Bonjour ' . $notifiable->nom_user . ', votre projet "' . $this->project->titre_projet . '" a été approuvé par Dschang's SchoolHub. Nous vous remercions pour votre contribution.';
+            $message = "Bonjour " . $notifiable->nom_user . ", votre projet \"" . $this->project->titre_projet . "\" a été approuvé par Dschang's SchoolHub. Nous vous remercions pour votre contribution.";
         } elseif ($this->status === 'Rejected') {
-            $message = 'Bonjour ' . $notifiable->nom_user . ', votre projet "' . $this->project->titre_projet . '" n\'a pas été approuvé par Dschang's SchoolHub. Nous vous remercions pour votre soumission et vous encourageons à soumettre à nouveau après les modifications nécessaires.';
+            $message = "Bonjour " . $notifiable->nom_user . ", votre projet \"" . $this->project->titre_projet . "\" n'a pas été approuvé par Dschang's SchoolHub. Nous vous remercions pour votre soumission et vous encourageons à soumettre à nouveau après les modifications nécessaires.";
         }else{
-            $message = 'Bonjour ' . $notifiable->nom_user . ', votre projet "' . $this->project->titre_projet . '" a ete restaurer et mis en etat d attente pour une nouvelle evaluation. Nous vous tiendrons informer de la decision finale ';
+            $message = "Bonjour " . $notifiable->nom_user . ", votre projet \"" . $this->project->titre_projet . "\" a ete restaurer et mis en etat d attente pour une nouvelle evaluation. Nous vous tiendrons informer de la decision finale ";
         }
 
         return [

@@ -56,6 +56,11 @@ class ProjectStatusController extends Controller
 
         if ($project && ($project->status === 'Approved' || $project->status === 'Rejected')) {
             $project->status = 'Pending';
+            // Sauvegarder le motif fourni par l'admin lors de la restauration
+            $motif = request()->input('motif') ?? request()->input('rejection_reason') ?? null;
+            if ($motif) {
+                $project->rejection_reason = $motif;
+            }
             $project->save();
 
             // Envoi de la notification à l'utilisateur

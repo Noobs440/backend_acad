@@ -17,7 +17,7 @@ namespace App\Http\Controllers;
  * )
  *
  * @OA\Server(
- *     url="http://localhost:8000/api",
+ *     url="https://backend-acad.onrender.com/api",
  *     description="Local API server"
  * )
  */

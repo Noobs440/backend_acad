@@ -19,37 +19,46 @@ class TblProjetController extends Controller
     /**
      * Met à jour le statut d'un projet (admin)
      */
-    public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|string',
-            'rejection_reason' => 'nullable|string',
-        ]);
-        $projet = TblProjet::findOrFail($id);
-        $projet->status = $request->status;
-        if ($request->status === 'Rejected' && $request->filled('rejection_reason')) {
-            $projet->rejection_reason = $request->rejection_reason;
-        } elseif ($request->status !== 'Rejected') {
-            $projet->rejection_reason = null;
-        }
-        $projet->save();
+public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|string',
+        'rejection_reason' => 'nullable|string',
+    ]);
 
-        // Envoi de la notification à l'utilisateur du projet
-        $user = $projet->user;
-        if ($user) {
-            $message = '';
-            if ($projet->status === 'Approved') {
-                $message = 'Votre projet a été approuvé.';
-            } elseif ($projet->status === 'Rejected') {
-                $message = 'Votre projet a été rejeté.';
-            } else {
-                $message = 'Le statut de votre projet a changé.';
-            }
-            $user->notify(new \App\Notifications\ProjectStatusChangeNotification($projet, $projet->status, $message));
-        }
+    $projet = TblProjet::findOrFail($id);
+    $projet->status = $request->status;
 
-        return response()->json(['message' => 'Statut du projet mis à jour', 'projet' => $projet]);
+    if ($request->status === 'Rejected' && $request->filled('rejection_reason')) {
+        $projet->rejection_reason = $request->rejection_reason;
+    } elseif ($request->status === 'Pending' && $request->filled('rejection_reason')) {
+        // ← Remise en attente avec motif (restauration depuis Approved)
+        $projet->rejection_reason = $request->rejection_reason;
+    } elseif ($request->status === 'Approved') {
+        // ← Approuvé : on efface le motif
+        $projet->rejection_reason = null;
     }
+
+    $projet->save();
+
+    $user = $projet->user;
+    if ($user) {
+        $message = match($projet->status) {
+            'Approved' => 'Votre projet a été approuvé.',
+            'Rejected' => 'Votre projet a été rejeté.',
+            'Pending'  => 'Votre projet a été remis en attente de révision.',
+            default    => 'Le statut de votre projet a changé.',
+        };
+        $user->notify(new \App\Notifications\ProjectStatusChangeNotification(
+            $projet, $projet->status, $message
+        ));
+    }
+
+    return response()->json([
+        'message' => 'Statut du projet mis à jour', 
+        'projet' => $projet
+    ]);
+}
 
     public function index()
 {
@@ -244,17 +253,20 @@ class TblProjetController extends Controller
     /**
      * Resoumettre un projet rejeté (utilisateur)
      */
-    public function resubmit($id)
-    {
-        $projet = TblProjet::findOrFail($id);
-        if ($projet->status !== 'Rejected') {
-            return response()->json(['error' => 'Seuls les projets rejetés peuvent être resoumis.'], 400);
-        }
-        $projet->status = 'Pending';
-        $projet->rejection_reason = null;
-        $projet->save();
-        return response()->json(['message' => 'Projet resoumis', 'projet' => $projet]);
+public function resubmit($id)
+{
+    $projet = TblProjet::findOrFail($id);
+    if ($projet->status !== 'Rejected') {
+        return response()->json(['error' => 'Seuls les projets rejetés peuvent être resoumis.'], 400);
     }
+    
+    // On garde le motif du rejet précédent pour que l'admin le voie
+    $projet->status = 'Pending';
+    // NE PAS effacer rejection_reason ici
+    $projet->save();
+    
+    return response()->json(['message' => 'Projet resoumis', 'projet' => $projet]);
+}
 
     public function assignAdmin(Request $request, $id)
     {

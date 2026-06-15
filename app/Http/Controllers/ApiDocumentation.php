@@ -17,7 +17,7 @@ namespace App\Http\Controllers;
  * )
  *
  * @OA\Server(
- *     url="https://backend-acad.onrender.com/api",
+ *     url="https://dschangschoolhub.duckdns.org/api",
  *     description="Local API server"
  * )
  */

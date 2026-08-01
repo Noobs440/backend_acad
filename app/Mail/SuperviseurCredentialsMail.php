@@ -22,7 +22,7 @@ class SuperviseurCredentialsMail extends Mailable
 
     public function build()
     {
-        return $this->from([env('MAIL_FROM_ADDRESS') => config('app.name')])
+        return $this->from(config('mail.from.address'), config('mail.from.name'))
                     ->to($this->superviseur->email)
                     ->subject('Vos identifiants de connexion - ' . config('app.name'))
                     ->view('emails.superviseur-credentials');

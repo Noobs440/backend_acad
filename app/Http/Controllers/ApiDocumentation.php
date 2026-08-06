@@ -17,7 +17,7 @@ namespace App\Http\Controllers;
  * )
  *
  * @OA\Server(
- *     url="https://dschangschoolhub.duckdns.org/api",
+ *     url="https://dschangschoolhub.ddns.net/api",
  *     description="Local API server"
  * )
  */
